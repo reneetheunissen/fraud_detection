@@ -114,7 +114,7 @@ class FraudDetector:
         if classifier_name == 'LogisticRegression':
             return LogisticRegression(random_state=0, max_iter=1000)
         else:
-            return RandomForestClassifier(random_state=0, max_depth=5)
+            return RandomForestClassifier(random_state=0)
 
 
 class Predictor:

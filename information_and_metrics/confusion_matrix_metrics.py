@@ -57,14 +57,6 @@ class ConfusionMatrixMetrics:
         TNR = round(TN / (TN + FP), 3)
         print(f'TNR: {TNR}')
 
-        # Precision or positive predictive value
-        PPV = round(TP / (TP + FP), 3)
-        print(f'PPV: {PPV}')
-
-        # Negative predictive value
-        NPV = round(TN / (TN + FN), 3)
-        print(f'NPV: {NPV}')
-
         # Fall out or false positive rate
         FPR = round(FP / (FP + TN), 3)
         print(f'FPR: {FPR}')
@@ -81,6 +73,14 @@ class ConfusionMatrixMetrics:
         FOR = round(FN / (FN + TN), 3)
         print(f'FOR: {FOR}')
 
+        # Precision or positive predictive value
+        PPV = round(TP / (TP + FP), 3)
+        print(f'PPV: {PPV}')
+
+        # Negative predictive value
+        NPV = round(TN / (TN + FN), 3)
+        print(f'NPV: {NPV}')
+
         # Rate of positive predictions
         RPP = round((FP + TP) / (TN + TP + FN + FP), 3)
         print(f'RPP: {RPP}')
@@ -92,20 +92,6 @@ class ConfusionMatrixMetrics:
         # Overall accuracy
         ACC = round((TP + TN) / (TP + FP + FN + TN), 3)
         print(f'ACC: {ACC}')
-
-        # Recall
-        recall = round(recall_score(
-            self._informative_data_set[self._informative_data_set[group_name] == 1].is_fraud.to_numpy(),
-            self._informative_data_set[self._informative_data_set[group_name] == 1].predicted.to_numpy()
-        ), 3)
-        print(f'Recall: {recall}')
-
-        # Precision
-        precision = round(precision_score(
-            self._informative_data_set[self._informative_data_set[group_name] == 1].is_fraud.to_numpy(),
-            self._informative_data_set[self._informative_data_set[group_name] == 1].predicted.to_numpy()
-        ), 3)
-        print(f'Precision: {precision}')
 
         # ROC-AUC
         roc_auc = round(roc_auc_score(
