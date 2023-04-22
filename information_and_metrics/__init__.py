@@ -1,5 +1,5 @@
-from .confusion_matrix import ConfusionMatrix
+from .confusion_matrix_metrics import ConfusionMatrixMetrics
 
 __all__ = [
-    'ConfusionMatrix',
+    'ConfusionMatrixMetrics',
 ]

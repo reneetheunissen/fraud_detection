@@ -10,6 +10,7 @@ pandas = "^2.0.0"
 datacleaner = "^0.1.5"
 matplotlib = "^3.7.1"
 seaborn = "^0.12.2"
+fairlearn = "^0.8.0"
 
 [tool.poetry.dev-dependencies]
 

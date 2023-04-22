@@ -1,34 +1,37 @@
 from fraud_detector import FraudDetector
-from information_and_metrics import ConfusionMatrix
+from information_and_metrics import ConfusionMatrixMetrics
 
+# # Random sampling
+# print("Random sampling:")
+# # Initialize fraud detector
+# fraud_detector: FraudDetector = FraudDetector(
+#     classifier_name='LogisticRegression',
+#     male_fraud_proportion=0.2,  # not used
+#     female_fraud_proportion=0.1,  # not used
+#     sample_size=2500,
+#     random_training_set=True
+# )
+# # Create predictions
+# _, informative_test_data_random = fraud_detector.detect_fraud()
+# # Initialize confusion matrix
+# confusion_matrix_metrics = ConfusionMatrixMetrics(informative_test_data_random)
+# # Get confusion matrix metrics
+# confusion_matrix_metrics.get_metrics()
+#
+# print()
+
+# Selection bias
+print("Biased data:")
 # Initialize fraud detector
 fraud_detector: FraudDetector = FraudDetector(
     classifier_name='LogisticRegression',
-    male_fraud_proportion=0.3,
-    female_fraud_proportion=0.05,
+    male_fraud_proportion=0.66,
+    female_fraud_proportion=0.02,
     sample_size=2500,
 )
-# Initialize confusion matrix
-confusion_matrix_creator = ConfusionMatrix()
 # Create predictions
 _, informative_test_data_biased = fraud_detector.detect_fraud()
+# Initialize confusion matrix
+confusion_matrix_metrics = ConfusionMatrixMetrics(informative_test_data_biased)
 # Get confusion matrix
-print("Biased data confusion matrix:")
-confusion_matrix_creator.get_confusion_matrix(informative_test_data_biased)
-
-print()
-
-# Now get the predictions for the random data set
-# Initialize fraud detector
-fraud_detector: FraudDetector = FraudDetector(
-    classifier_name='LogisticRegression',
-    male_fraud_proportion=0.2,  # not used
-    female_fraud_proportion=0.1,  # not used
-    sample_size=2500,
-    random_training_set=True
-)
-# Create predictions
-_, informative_test_data_random = fraud_detector.detect_fraud()
-# Get confusion matrix
-print("Random data confusion matrix:")
-confusion_matrix_creator.get_confusion_matrix(informative_test_data_random)
+confusion_matrix_metrics.get_metrics()

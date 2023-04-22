@@ -10,6 +10,7 @@ class TrainTestCreator:
 
     def __init__(self) -> None:
         # Train and test are split to represent realistic fraud scenarios in terms of size
+        # They are turned around since we test on more data than we want to train on for this scenario
         self._train_data: DataFrame = self._import_data('../fraudTest.csv')
         self._test_data: DataFrame = self._import_data('../fraudTrain.csv')
         self._combined_data: DataFrame = DataCleaner().clean_data(pd.concat([self._train_data, self._test_data]))

@@ -54,6 +54,23 @@ scikit-learn = "*"
 update_checker = "*"
 
 [[package]]
+name = "fairlearn"
+version = "0.8.0"
+description = "Algorithms for mitigating unfairness in supervised machine learning"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+
+[package.dependencies]
+numpy = ">=1.17.2"
+pandas = ">=0.25.1"
+scikit-learn = ">=0.22.1"
+scipy = ">=1.4.1"
+
+[package.extras]
+customplots = ["matplotlib (>=3.2.1)"]
+
+[[package]]
 name = "fonttools"
 version = "4.39.3"
 description = "Tools to manipulate font files"
@@ -407,7 +424,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "flake8 (<5)", "pytest-co
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e80a4469485d23ffd12dd55ea9359ea4ddc575bd7af2c0113deea4b781aeab3b"
+content-hash = "20d84872d5190c9ff3616eba208bea0ff33d85e3f6234477665d5b457ff479b0"
 
 [metadata.files]
 certifi = []
@@ -415,6 +432,7 @@ charset-normalizer = []
 contourpy = []
 cycler = []
 datacleaner = []
+fairlearn = []
 fonttools = []
 idna = []
 importlib-resources = []
