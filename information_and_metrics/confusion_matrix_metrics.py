@@ -11,17 +11,19 @@ class ConfusionMatrixMetrics:
         """
         self._informative_data_set = informative_data_set
 
-    def get_metrics(self) -> None:
+    def get_metrics(self) -> tuple[dict, dict]:
         """
         Prints the confusion matrix metrics for males and for females.
+
+        :returns the metrics of males and females are dictionary
         """
         print('Males:')
-        self._get_metrics('gender_M')
+        male_metrics = self._get_metrics('gender_M')
 
         print()
 
         print('Females:')
-        self._get_metrics('gender_F')
+        female_metrics = self._get_metrics('gender_F')
 
         print()
 
@@ -33,11 +35,13 @@ class ConfusionMatrixMetrics:
         ), 3)
         print(f'Demographic parity: {demographic_parity}')
 
-    def _get_metrics(self, group_name: str) -> None:
+        return male_metrics, female_metrics
+
+    def _get_metrics(self, group_name: str) -> dict[str, float]:
         """
         Prints the metrics for the specified group.
         :param group_name: The name of the column that specifies to group to look at
-        :return:
+        :return: the metrics per group
         """
         cnf_mat = confusion_matrix(
             self._informative_data_set[self._informative_data_set[group_name] == 1].is_fraud.to_numpy(),
@@ -93,9 +97,16 @@ class ConfusionMatrixMetrics:
         ACC = round((TP + TN) / (TP + FP + FN + TN), 3)
         print(f'ACC: {ACC}')
 
-        # ROC-AUC
-        roc_auc = round(roc_auc_score(
-            self._informative_data_set[self._informative_data_set[group_name] == 1].is_fraud.to_numpy(),
-            self._informative_data_set[self._informative_data_set[group_name] == 1].predicted.to_numpy()
-        ), 3)
-        print(f'ROC-AUC: {roc_auc}')
+        return {
+            'TPR': TPR,
+            'TNR': TNR,
+            'FPR': FPR,
+            'FNR': FNR,
+            'FDR': FDR,
+            'FOR': FOR,
+            'PPV': PPV,
+            'NPV': NPV,
+            'RPP': RPP,
+            'RNP': RNP,
+            'ACC': ACC,
+        }

@@ -2,6 +2,8 @@ from fraud_detector import FraudDetector
 from information_and_metrics import ConfusionMatrixMetrics
 
 # Random sampling
+from information_and_metrics.metrics_per_observed_fraud_rate import MetricsPerObservedFraudRate
+
 print("Random sampling:")
 # Initialize fraud detector
 fraud_detector: FraudDetector = FraudDetector(
@@ -34,7 +36,7 @@ _, informative_test_data_biased = fraud_detector.detect_fraud()
 # Initialize confusion matrix
 confusion_matrix_metrics = ConfusionMatrixMetrics(informative_test_data_biased)
 # Get confusion matrix
-confusion_matrix_metrics.get_metrics()
+male_metrics, female_metrics = confusion_matrix_metrics.get_metrics()
 
 print()
 
