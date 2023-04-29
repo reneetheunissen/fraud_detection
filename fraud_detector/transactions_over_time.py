@@ -1,10 +1,10 @@
-import os
 from math import floor
 
 import pandas as pd
 from pandas import DataFrame
 
 from fraud_detector import FraudDetector
+from information_and_metrics import ConfusionMatrixMetrics
 
 
 class TransactionsOverTime:
@@ -28,18 +28,22 @@ class TransactionsOverTime:
         :return:
         """
         test_sets = self._split_test_set()
-        number_of_alerts = floor(len(test_sets[0]) * 0.05)
-        print(f'The number of alerts per day is {number_of_alerts}')
+        number_of_alerts: int = 100
+        print(f'The number of alerts per day is {number_of_alerts} out of {len(test_sets[0])} transactions.')
 
         for day in range(1, self._amount_of_days + 1):
+            print(f'Day {day}')
             self._fraud_detector.test_transactions = test_sets[day - 1]
             predictions, informative_data = self._fraud_detector.detect_fraud()
+
+            # Get metrics
+            confusion_matrix_metrics = ConfusionMatrixMetrics(informative_data)
+            confusion_matrix_metrics.get_metrics()
 
             # Predictions is a dataframe with columns 'non-fraud' and 'fraud' and the index is the test index
             # Sort based on certainty of fraud
             predictions = predictions.sort_values(by='fraud', ascending=False)
             alerts_index = predictions.iloc[:number_of_alerts].index
-            print(len(alerts_index))
 
             # Add alerts to historical data
             informative_data.drop(columns=['predicted'], axis=1, inplace=True)
@@ -49,7 +53,7 @@ class TransactionsOverTime:
                     informative_data[informative_data.index.isin(alerts_index) == True]
                 ]
             )
-            print("NEXT DAY!")
+        print("Days ended.")
 
     def _split_test_set(self) -> list[DataFrame]:
         """
