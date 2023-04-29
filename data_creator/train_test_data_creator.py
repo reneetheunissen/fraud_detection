@@ -25,7 +25,7 @@ class TrainTestCreator:
 
     def create_test_set(self) -> DataFrame:
         """
-        Creates the test set with 10% fraud.
+        Creates the test set with 11% fraud.
 
         :return: The test dataframe
         """
@@ -88,3 +88,10 @@ class TrainTestCreator:
             fraud_data[fraud_data['gender_F'] == 1].sample(n=fraud_number_females, random_state=0),
             non_fraud_data[non_fraud_data['gender_F'] == 1].sample(n=non_fraud_number_females, random_state=0),
         ])
+
+    def get_test_and_combined_data(self) -> tuple[DataFrame, DataFrame]:
+        """
+        Returns the test and combined data for adjusting the test set.
+        :return: The cleaned test and cleaned combined data
+        """
+        return self._test_data, self._combined_data
