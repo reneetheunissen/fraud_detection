@@ -33,7 +33,7 @@ class ConfusionMatrixMetrics:
             self._informative_data_set.predicted.to_numpy(),
             sensitive_features=self._informative_data_set.gender_M.to_numpy(),
         ), 3)
-        print(f'Demographic parity: {demographic_parity}')
+        # print(f'Demographic parity: {demographic_parity}')
 
         return male_metrics, female_metrics
 
@@ -55,47 +55,36 @@ class ConfusionMatrixMetrics:
 
         # Sensitivity, hit rate, recall, or true positive rate
         TPR = round(TP / (TP + FN), 3)
-        print(f'TPR: {TPR}')
 
         # Specificity or true negative rate
         TNR = round(TN / (TN + FP), 3)
-        print(f'TNR: {TNR}')
 
         # Fall out or false positive rate
         FPR = round(FP / (FP + TN), 3)
-        print(f'FPR: {FPR}')
 
         # False negative rate
         FNR = round(FN / (TP + FN), 3)
-        print(f'FNR: {FNR}')
 
         # False discovery rate
         FDR = round(FP / (TP + FP), 3)
-        print(f'FDR: {FDR}')
 
         # False ommission rate
         FOR = round(FN / (FN + TN), 3)
-        print(f'FOR: {FOR}')
 
         # Precision or positive predictive value
         PPV = round(TP / (TP + FP), 3)
-        print(f'PPV: {PPV}')
 
         # Negative predictive value
         NPV = round(TN / (TN + FN), 3)
-        print(f'NPV: {NPV}')
 
         # Rate of positive predictions
         RPP = round((FP + TP) / (TN + TP + FN + FP), 3)
-        print(f'RPP: {RPP}')
 
         # Rate of negative predictions
         RNP = round((FN + TN) / (TN + TP + FN + FP), 3)
-        print(f'RNP: {RNP}')
 
         # Overall accuracy
         ACC = round((TP + TN) / (TP + FP + FN + TN), 3)
-        print(f'ACC: {ACC}')
 
         return {
             'TPR': TPR,

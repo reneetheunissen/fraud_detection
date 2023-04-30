@@ -48,9 +48,9 @@ class FraudDetector:
         self.boxplot_visualizer = Boxplot(self.historical_data)
         self.violinplot_visualizer = Violinplot(self.historical_data)
 
-        print(f"Total proportion: {self.get_proportion()}")
-        print(f"Male proportion: {self.get_proportion(column_name='gender_M', value=1)}")
-        print(f"Female proportion: {self.get_proportion(column_name='gender_F', value=1)}")
+        # print(f"Total proportion: {self.get_proportion()}")
+        # print(f"Male proportion: {self.get_proportion(column_name='gender_M', value=1)}")
+        # print(f"Female proportion: {self.get_proportion(column_name='gender_F', value=1)}")
 
         # Initialize the classifier and predict
         self.predictor = Predictor(
