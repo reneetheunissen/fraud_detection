@@ -21,23 +21,21 @@ class FraudDetector:
             classifier_name: str,
             random_training_set: bool = False,
     ) -> None:
-        self._train_test_creator: TrainTestCreator = TrainTestCreator()
+        self.train_test_creator: TrainTestCreator = TrainTestCreator()
         if not random_training_set:
-            self._historical_data: DataFrame = self._train_test_creator.create_train_data(
+            self.historical_data: DataFrame = self.train_test_creator.create_train_data(
                 male_fraud_proportion,
                 female_fraud_proportion,
                 sample_size
             )
         else:
-            self._historical_data: DataFrame = self._train_test_creator.create_random_train_data(sample_size)
-        self._test_transactions: DataFrame = self._train_test_creator.create_test_set()
-        self._fraudulent_transactions: DataFrame = self._historical_data[self._historical_data['is_fraud'] == 1]
-        self._non_fraudulent_transactions: DataFrame = self._historical_data[self._historical_data['is_fraud'] == 0]
+            self.historical_data: DataFrame = self.train_test_creator.create_random_train_data(sample_size)
+        self.test_transactions: DataFrame = self.train_test_creator.create_test_set()
+        self._fraudulent_transactions: DataFrame = self.historical_data[self.historical_data['is_fraud'] == 1]
+        self._non_fraudulent_transactions: DataFrame = self.historical_data[self.historical_data['is_fraud'] == 0]
         self.boxplot_visualizer: Boxplot
         self.violinplot_visualizer: Violinplot
         self.predictor: Predictor
-        self.historical_data: DataFrame
-        self.test_data: DataFrame
         self._classifier: Union[LogisticRegression, RandomForestClassifier] = \
             self._initialize_classifier(classifier_name)
 
@@ -47,17 +45,17 @@ class FraudDetector:
         and a dataframe on the test data with all information including actual and predicted label
         """
         # Initialize options for boxplot and violinplot visualizers
-        self.boxplot_visualizer = Boxplot(self._historical_data)
-        self.violinplot_visualizer = Violinplot(self._historical_data)
+        self.boxplot_visualizer = Boxplot(self.historical_data)
+        self.violinplot_visualizer = Violinplot(self.historical_data)
 
-        print(f"Total proportion: {self.get_proportion()}")
-        print(f"Male proportion: {self.get_proportion(column_name='gender_M', value=1)}")
-        print(f"Female proportion: {self.get_proportion(column_name='gender_F', value=1)}")
+        # print(f"Total proportion: {self.get_proportion()}")
+        # print(f"Male proportion: {self.get_proportion(column_name='gender_M', value=1)}")
+        # print(f"Female proportion: {self.get_proportion(column_name='gender_F', value=1)}")
 
         # Initialize the classifier and predict
         self.predictor = Predictor(
-            historical_data=self._historical_data,
-            test_data=self._test_transactions,
+            historical_data=self.historical_data,
+            test_data=self.test_transactions,
             classifier=self._classifier,
         )
         predictions = self.predictor.run_model()
@@ -96,7 +94,7 @@ class FraudDetector:
         :return: Float containing the actual proportion of fraud rounded on 3 decimals
         """
         if data is None:
-            data = self._historical_data
+            data = self.historical_data
         # If no column_name is specified, the total proportion will be returned.
         if column_name is None:
             subset = data
