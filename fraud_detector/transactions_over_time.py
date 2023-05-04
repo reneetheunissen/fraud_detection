@@ -28,7 +28,7 @@ class TransactionsOverTime:
         self._for_males, self._rpp_males, self._acc_males = [], [], []
         self._fpr_females, self._fnr_females, self._fdr_females = [], [], []
         self._for_females, self._rpp_females, self._acc_females = [], [], []
-        self._alerts_males, self._alerts_females, self._alerts_fraud = [], [], []
+        self._alerts_males, self._alerts_females, self._alerts_fraud_males, self._alerts_fraud_females = [], [], [], []
         self._ofr_males, self._ofr_females, self._tfr_males, self._tfr_females = [], [], [], []
         self._random: bool = random_training_set
 
@@ -64,7 +64,9 @@ class TransactionsOverTime:
 
             self._alerts_males.append(len(alerts[alerts['gender_M'] == 1]) / len(alerts))
             self._alerts_females.append(1 - self._alerts_males[-1])
-            self._alerts_fraud.append(len(alerts[alerts['is_fraud'] == 1]) / len(alerts))
+            fraud_alerts: DataFrame = alerts[alerts['is_fraud'] == 1]
+            self._alerts_fraud_males.append(len(fraud_alerts[fraud_alerts['gender_M'] == 1]) / len(alerts))
+            self._alerts_fraud_females.append(len(fraud_alerts[fraud_alerts['gender_F'] == 1]) / len(alerts))
 
             # Add alerts to historical data
             informative_data.drop(columns=['predicted'], axis=1, inplace=True)
@@ -85,9 +87,10 @@ class TransactionsOverTime:
         self._plot_metric(self._rpp_males, self._acc_males, self._rpp_females, self._acc_females, 'RPP', 'ACC')
         self._plot_metric(self._ofr_males, self._tfr_males, self._ofr_females, self._tfr_females, 'OFR', 'TFR')
 
-        plt.plot(self._alerts_males, label='Males', color='tab:cyan')
-        plt.plot(self._alerts_females, label='Females', color='tab:pink')
-        plt.plot(self._alerts_fraud, label='Fraud', linestyle='dashed')  # TODO split up between males and females
+        plt.plot(self._alerts_males, label='Alerts males', color='tab:cyan')
+        plt.plot(self._alerts_females, label='Alerts females', color='tab:pink')
+        plt.plot(self._alerts_fraud_males, label='True fraud males',  color='tab:cyan', linestyle='dashed')
+        plt.plot(self._alerts_fraud_females, label='True fraud females',  color='tab:pink', linestyle='dashed')
 
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
