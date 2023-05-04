@@ -85,9 +85,9 @@ class TransactionsOverTime:
         self._plot_metric(self._rpp_males, self._acc_males, self._rpp_females, self._acc_females, 'RPP', 'ACC')
         self._plot_metric(self._ofr_males, self._tfr_males, self._ofr_females, self._tfr_females, 'OFR', 'TFR')
 
-        plt.plot(self._alerts_males, label='Males')
-        plt.plot(self._alerts_females, label='Females', linestyle='--')
-        plt.plot(self._alerts_fraud, label='Fraud')
+        plt.plot(self._alerts_males, label='Males', color='tab:cyan')
+        plt.plot(self._alerts_females, label='Females', color='tab:pink')
+        plt.plot(self._alerts_fraud, label='Fraud', linestyle='dashed')  # TODO split up between males and females
 
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
@@ -103,11 +103,14 @@ class TransactionsOverTime:
         """
         Plots the metrics.
         """
-        plt.plot(metric1_males, label=f'{metric1_name} males', color='blue')
-        plt.plot(metric1_females, label=f'{metric1_name} females', linestyle='--', color='blue')
+        colors: dict[str, str] = {'male': 'tab:cyan', 'female': 'tab:pink'}
+        linestyles: list[str] = ['solid', 'dashed']
 
-        plt.plot(metric2_males, label=f'{metric2_name} males', color='orange')
-        plt.plot(metric2_females, label=f'{metric2_name} females', linestyle='--', color='orange')
+        plt.plot(metric1_males, label=f'{metric1_name} males', color=colors['male'], linestyle=linestyles[0])
+        plt.plot(metric1_females, label=f'{metric1_name} females', color=colors['female'], linestyle=linestyles[0])
+
+        plt.plot(metric2_males, label=f'{metric2_name} males', color=colors['male'], linestyle=linestyles[1])
+        plt.plot(metric2_females, label=f'{metric2_name} females', color=colors['female'], linestyle=linestyles[1])
         if metric1_name == 'OFR':
             plt.ylim(0, 0.5)
         else:
