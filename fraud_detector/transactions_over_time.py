@@ -38,7 +38,7 @@ class TransactionsOverTime:
         :return:
         """
         test_sets = self._split_test_set()
-        number_of_alerts: int = int(len(test_sets[0]) * 0.1)
+        number_of_alerts: int = int(len(test_sets[0]) * 0.25)
         print(f'The number of alerts per day is {number_of_alerts} out of {len(test_sets[0])} transactions.')
 
         for day in range(1, self._amount_of_days + 1):

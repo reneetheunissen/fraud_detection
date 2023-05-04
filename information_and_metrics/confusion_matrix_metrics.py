@@ -1,3 +1,4 @@
+import numpy as np
 from fairlearn.metrics import demographic_parity_ratio
 from pandas import DataFrame
 from sklearn.metrics import confusion_matrix, recall_score, precision_score, balanced_accuracy_score, roc_auc_score
@@ -53,12 +54,6 @@ class ConfusionMatrixMetrics:
         FN = cnf_mat[1][0]
         TN = cnf_mat[0][0]
 
-        # Sensitivity, hit rate, recall, or true positive rate
-        TPR = round(TP / (TP + FN), 3)
-
-        # Specificity or true negative rate
-        TNR = round(TN / (TN + FP), 3)
-
         # Fall out or false positive rate
         FPR = round(FP / (FP + TN), 3)
 
@@ -71,31 +66,17 @@ class ConfusionMatrixMetrics:
         # False ommission rate
         FOR = round(FN / (FN + TN), 3)
 
-        # Precision or positive predictive value
-        PPV = round(TP / (TP + FP), 3)
-
-        # Negative predictive value
-        NPV = round(TN / (TN + FN), 3)
-
         # Rate of positive predictions
         RPP = round((FP + TP) / (TN + TP + FN + FP), 3)
-
-        # Rate of negative predictions
-        RNP = round((FN + TN) / (TN + TP + FN + FP), 3)
 
         # Overall accuracy
         ACC = round((TP + TN) / (TP + FP + FN + TN), 3)
 
         return {
-            'TPR': TPR,
-            'TNR': TNR,
             'FPR': FPR,
             'FNR': FNR,
             'FDR': FDR,
             'FOR': FOR,
-            'PPV': PPV,
-            'NPV': NPV,
             'RPP': RPP,
-            'RNP': RNP,
             'ACC': ACC,
         }
