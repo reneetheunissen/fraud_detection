@@ -38,7 +38,7 @@ class TransactionsOverTime:
         :return:
         """
         test_sets = self._split_test_set()
-        number_of_alerts: int = int(len(test_sets[0]) * 0.1)
+        number_of_alerts: int = int(len(test_sets[0]) * 0.25)
         print(f'The number of alerts per day is {number_of_alerts} out of {len(test_sets[0])} transactions.')
 
         for day in range(1, self._amount_of_days + 1):
@@ -110,6 +110,8 @@ class TransactionsOverTime:
         plt.plot(metric2_females, label=f'{metric2_name} females', linestyle='--', color='orange')
         if metric1_name == 'OFR':
             plt.ylim(0, 0.5)
+        else:
+            plt.ylim(0, 1)
 
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
