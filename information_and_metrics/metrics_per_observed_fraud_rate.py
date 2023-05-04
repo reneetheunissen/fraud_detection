@@ -112,6 +112,7 @@ class MetricsPerObservedFraudRate:
         # Add axis labels and legend outside of the plot
         plt.xlabel('Observed Fraud Rate of Males')
         plt.ylabel('Metric Value')
+        plt.ylim(0, 1)
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 

@@ -110,6 +110,8 @@ class TransactionsOverTime:
         plt.plot(metric2_females, label=f'{metric2_name} females', linestyle='--', color='orange')
         if metric1_name == 'OFR':
             plt.ylim(0, 0.5)
+        else:
+            plt.ylim(0, 1)
 
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
