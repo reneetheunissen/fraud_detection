@@ -1,7 +1,8 @@
-import numpy as np
+from typing import Union
+
 from fairlearn.metrics import demographic_parity_ratio
 from pandas import DataFrame
-from sklearn.metrics import confusion_matrix, recall_score, precision_score, balanced_accuracy_score, roc_auc_score
+from sklearn.metrics import confusion_matrix
 
 
 class ConfusionMatrixMetrics:
@@ -12,29 +13,23 @@ class ConfusionMatrixMetrics:
         """
         self._informative_data_set = informative_data_set
 
-    def get_metrics(self) -> tuple[dict, dict]:
+    def get_metrics(self, include_demographic_parity: bool = False) -> \
+            Union[tuple[dict, dict], tuple[dict, dict, float]]:
         """
         Prints the confusion matrix metrics for males and for females.
 
         :returns the metrics of males and females are dictionary
         """
-        print('Males:')
         male_metrics = self._get_metrics('gender_M')
-
-        print()
-
-        print('Females:')
         female_metrics = self._get_metrics('gender_F')
 
-        print()
-
-        # demographic parity
-        demographic_parity = round(demographic_parity_ratio(
-            self._informative_data_set.is_fraud.to_numpy(),
-            self._informative_data_set.predicted.to_numpy(),
-            sensitive_features=self._informative_data_set.gender_M.to_numpy(),
-        ), 3)
-        # print(f'Demographic parity: {demographic_parity}')
+        if include_demographic_parity:
+            demographic_parity = round(demographic_parity_ratio(
+                self._informative_data_set.is_fraud.to_numpy(),
+                self._informative_data_set.predicted.to_numpy(),
+                sensitive_features=self._informative_data_set.gender_M.to_numpy(),
+            ), 3)
+            return male_metrics, female_metrics, demographic_parity
 
         return male_metrics, female_metrics
 

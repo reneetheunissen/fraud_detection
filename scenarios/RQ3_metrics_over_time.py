@@ -48,5 +48,4 @@ bank_process: TransactionsOverTime = TransactionsOverTime(
     sample_size=6500,
     amount_of_days=50,
 )
-bank_process.start_transactions()
-bank_process.plot()
+bank_process.plot(n_iterations=100)
