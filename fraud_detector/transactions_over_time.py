@@ -35,15 +35,11 @@ class TransactionsOverTime:
     def start_transactions(self) -> None:
         """
         Goes of the specified amount of days and evaluates the transactions for fraud.
-        :return:
         """
         test_sets = self._split_test_set()
         number_of_alerts: int = int(len(test_sets[0]) * 0.25)
-        print(f'The number of alerts per day is {number_of_alerts} out of {len(test_sets[0])} transactions.')
 
         for day in range(1, self._amount_of_days + 1):
-            print(f'Day {day}')
-            print(f"Fraud in test set: {len(test_sets[day - 1][test_sets[day-1]['is_fraud'] == 1]) / len(test_sets[day-1])}")
             self._fraud_detector.test_transactions = test_sets[day - 1]
             predictions, informative_data = self._fraud_detector.detect_fraud()
 
@@ -54,7 +50,7 @@ class TransactionsOverTime:
 
             # Predictions is a dataframe with columns 'non-fraud' and 'fraud' and the index is the test index
             if self._random:
-                alerts_index = predictions.sample(n=number_of_alerts, random_state=0).index
+                alerts_index = predictions.sample(n=number_of_alerts).index
                 alerts = informative_data[informative_data.index.isin(alerts_index) == True]
             else:
                 # Sort based on certainty of fraud
@@ -76,26 +72,70 @@ class TransactionsOverTime:
                     informative_data[informative_data.index.isin(alerts_index) == True]
                 ]
             )
-        print("Days ended.")
 
-    def plot(self) -> None:
+    def plot(self, n_iterations: int = 5) -> None:
         """
         Plots all metric plots.
+        :param n_iterations: The number of iterations to use
         """
-        self._plot_metric(self._fpr_males, self._fnr_males, self._fpr_females, self._fnr_females, 'FPR', 'FNR')
-        self._plot_metric(self._fnr_males, self._for_males, self._fdr_females, self._for_females, 'FDR', 'FOR')
-        self._plot_metric(self._rpp_males, self._acc_males, self._rpp_females, self._acc_females, 'RPP', 'ACC')
-        self._plot_metric(self._ofr_males, self._tfr_males, self._ofr_females, self._tfr_females, 'OFR', 'TFR')
+        for iteration in range(1, n_iterations + 1):
+            self.start_transactions()
+            print(f"Iteration number {iteration} ended.")
 
-        plt.plot(self._alerts_males, label='Alerts males', color='tab:cyan')
-        plt.plot(self._alerts_females, label='Alerts females', color='tab:pink')
-        plt.plot(self._alerts_fraud_males, label='True fraud males',  color='tab:cyan', linestyle='dashed')
-        plt.plot(self._alerts_fraud_females, label='True fraud females',  color='tab:pink', linestyle='dashed')
+        fpr_males_avg, fnr_males_avg = self._get_averages(self._fpr_males, n_iterations), \
+                                       self._get_averages(self._fnr_males, n_iterations)
+        fpr_females_avg, fnr_females_avg = self._get_averages(self._fpr_females, n_iterations), \
+                                           self._get_averages(self._fnr_females, n_iterations)
+
+        fdr_males_avg, for_males_avg = self._get_averages(self._fdr_males, n_iterations), \
+                                       self._get_averages(self._for_males, n_iterations)
+        fdr_females_avg, for_females_avg = self._get_averages(self._fdr_females, n_iterations), \
+                                           self._get_averages(self._for_females, n_iterations)
+
+        rpp_males_avg, acc_males_avg = self._get_averages(self._rpp_males, n_iterations), \
+                                       self._get_averages(self._acc_males, n_iterations)
+        rpp_females_avg, acc_females_avg = self._get_averages(self._rpp_females, n_iterations), \
+                                           self._get_averages(self._acc_females, n_iterations)
+
+        ofr_males_avg, tfr_males_avg = self._get_averages(self._ofr_males, n_iterations), \
+                                       self._get_averages(self._tfr_males, n_iterations)
+        ofr_females_avg, tfr_females_avg = self._get_averages(self._ofr_females, n_iterations), \
+                                           self._get_averages(self._tfr_females, n_iterations)
+
+        self._plot_metric(fpr_males_avg, fnr_males_avg, fpr_females_avg, fnr_females_avg, 'FPR', 'FNR')
+        self._plot_metric(fdr_males_avg, for_males_avg, fdr_females_avg, for_females_avg, 'FDR', 'FOR')
+        self._plot_metric(rpp_males_avg, acc_males_avg, rpp_females_avg, acc_females_avg, 'RPP', 'ACC')
+        self._plot_metric(ofr_males_avg, tfr_males_avg, ofr_females_avg, tfr_females_avg, 'OFR', 'TFR')
+
+        plt.plot(self._get_averages(self._alerts_males, n_iterations), label='Alerts males', color='tab:cyan')
+        plt.plot(self._get_averages(self._alerts_females, n_iterations), label='Alerts females', color='tab:pink')
+        plt.plot(self._get_averages(self._alerts_fraud_males, n_iterations),
+                 label='True fraud males',  color='tab:cyan', linestyle='dashed')
+        plt.plot(self._get_averages(self._alerts_fraud_females, n_iterations),
+                 label='True fraud females',  color='tab:pink', linestyle='dashed')
 
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
         plt.show()
+
+    def _get_averages(self, nested_list: list[list[float]], n_iterations: int) -> list[float]:
+        """
+        Gets the average over all simulations per day.
+        :param nested_list: The nested list of all values per iterations
+        :param n_iterations: The number of iterations
+        :returns: List of averages
+        """
+        average_list = []
+        for day in range(1, self._amount_of_days + 1):
+            average: float = 0
+
+            for iteration in range(n_iterations):
+                index_to_obtain: int = day + iteration * self._amount_of_days - 1
+                average += nested_list[index_to_obtain]
+
+            average_list.append(average / n_iterations)
+        return average_list
 
     @staticmethod
     def _plot_metric(
@@ -139,10 +179,10 @@ class TransactionsOverTime:
 
         for day in range(1, self._amount_of_days + 1):
             if day == 1:
-                divided_test_sets.append(test_set.sample(n=transactions_per_day, random_state=0))
+                divided_test_sets.append(test_set.sample(n=transactions_per_day))
             else:
                 test_set.drop(index=divided_test_sets[-1].index, inplace=True)
-                divided_test_sets.append(test_set.sample(n=transactions_per_day, random_state=0))
+                divided_test_sets.append(test_set.sample(n=transactions_per_day))
 
         return divided_test_sets
 
@@ -161,14 +201,10 @@ class TransactionsOverTime:
         desired_fraud_rate: float = 0.1
 
         if current_fraud_rate < desired_fraud_rate:
-            print("FRAUD RATE ADJUSTMENT!")
             transactions_to_remove = int(len(test_data) - len(fraud_data) / desired_fraud_rate)
-            print(f"Number of transactions that will be removed: {transactions_to_remove}")
             non_fraud_indices = non_fraud_data.index
             index_to_drop = np.random.choice(non_fraud_indices, size=transactions_to_remove, replace=False)
             test_data.drop(index=index_to_drop, inplace=True)
-
-            print(len(fraud_data) / len(test_data))
 
         return test_data
 
@@ -179,6 +215,7 @@ class TransactionsOverTime:
         :param female_metrics: The metrics for females.
         :param informative_data: The data of the transactions of the current day
         """
+        print(male_metrics['FPR'])
         self._fpr_males.append(male_metrics['FPR'])
         self._fnr_males.append(male_metrics['FNR'])
         self._fdr_males.append(male_metrics['FDR'])
