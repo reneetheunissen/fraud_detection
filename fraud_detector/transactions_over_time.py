@@ -24,6 +24,7 @@ class TransactionsOverTime:
         )
         self._amount_of_days: int = amount_of_days
         self._historical_data_all_labeled: DataFrame = self._fraud_detector.historical_data
+        self._historical_data_original: DataFrame = self._historical_data_all_labeled.copy()
         self._fpr_males, self._fnr_males, self._fdr_males = [], [], []
         self._for_males, self._rpp_males, self._acc_males = [], [], []
         self._fpr_females, self._fnr_females, self._fdr_females = [], [], []
@@ -37,7 +38,7 @@ class TransactionsOverTime:
         Goes of the specified amount of days and evaluates the transactions for fraud.
         """
         test_sets = self._split_test_set()
-        number_of_alerts: int = int(len(test_sets[0]) * 0.25)
+        number_of_alerts: int = int(len(test_sets[0]) * 0.05)
 
         for day in range(1, self._amount_of_days + 1):
             self._fraud_detector.test_transactions = test_sets[day - 1]
@@ -81,6 +82,8 @@ class TransactionsOverTime:
         for iteration in range(1, n_iterations + 1):
             self.start_transactions()
             print(f"Iteration number {iteration} ended.")
+            print("Resetting historical data...")
+            self._fraud_detector.historical_data = self._historical_data_original.copy()
 
         fpr_males_avg, fnr_males_avg = self._get_averages(self._fpr_males, n_iterations), \
                                        self._get_averages(self._fnr_males, n_iterations)
@@ -115,6 +118,7 @@ class TransactionsOverTime:
                  label='True fraud females',  color='tab:pink', linestyle='dashed')
 
         # Add axis labels and legend outside of the plot
+        plt.ylim(0, 1)
         plt.xlabel('Amount of days')
         plt.ylabel('Metric Value')
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
@@ -157,7 +161,7 @@ class TransactionsOverTime:
 
         plt.plot(metric2_males, label=f'{metric2_name} males', color=colors['male'], linestyle=linestyles[1])
         plt.plot(metric2_females, label=f'{metric2_name} females', color=colors['female'], linestyle=linestyles[1])
-        if metric1_name == 'OFR':
+        if metric1_name in ['OFR', 'FDR']:
             plt.ylim(0, 0.5)
         else:
             plt.ylim(0, 1)
