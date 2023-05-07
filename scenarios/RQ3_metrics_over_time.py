@@ -46,6 +46,6 @@ bank_process: TransactionsOverTime = TransactionsOverTime(
     female_fraud_proportion=0.05,
     classifier_name='LogisticRegression',
     sample_size=6500,
-    amount_of_days=3,
+    amount_of_days=50,
 )
-bank_process.plot(n_iterations=3)
+bank_process.plot(n_iterations=10)

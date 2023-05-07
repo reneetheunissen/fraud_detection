@@ -114,6 +114,9 @@ class TransactionsOverTime:
         plt.plot(self._get_averages(self._alerts_fraud_females, n_iterations),
                  label='True fraud females',  color='tab:pink', linestyle='dashed')
 
+        # Add axis labels and legend outside of the plot
+        plt.xlabel('Amount of days')
+        plt.ylabel('Metric Value')
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
@@ -215,7 +218,6 @@ class TransactionsOverTime:
         :param female_metrics: The metrics for females.
         :param informative_data: The data of the transactions of the current day
         """
-        print(male_metrics['FPR'])
         self._fpr_males.append(male_metrics['FPR'])
         self._fnr_males.append(male_metrics['FNR'])
         self._fdr_males.append(male_metrics['FDR'])
