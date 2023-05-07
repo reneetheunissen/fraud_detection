@@ -38,7 +38,7 @@ class TransactionsOverTime:
         Goes of the specified amount of days and evaluates the transactions for fraud.
         """
         test_sets = self._split_test_set()
-        number_of_alerts: int = int(len(test_sets[0]) * 0.05)
+        number_of_alerts: int = int(len(test_sets[0]) * 0.01)
 
         for day in range(1, self._amount_of_days + 1):
             self._fraud_detector.test_transactions = test_sets[day - 1]
@@ -82,7 +82,7 @@ class TransactionsOverTime:
         for iteration in range(1, n_iterations + 1):
             self.start_transactions()
             print(f"Iteration number {iteration} ended.")
-            print("Resetting historical data...")
+            # Reset the historical data for the next iteration
             self._fraud_detector.historical_data = self._historical_data_original.copy()
 
         fpr_males_avg, fnr_males_avg = self._get_averages(self._fpr_males, n_iterations), \
