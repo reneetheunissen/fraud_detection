@@ -15,9 +15,11 @@ class TransactionsOverTime:
                  male_fraud_proportion: float,
                  female_fraud_proportion: float,
                  classifier_name: str,
+                 title_scenario: str,
                  sample_size: int = 2500,
                  random_training_set: bool = False,
                  amount_of_days: int = 3,
+                 percentage_alerts: float = 0.01
                  ) -> None:
         self._fraud_detector: FraudDetector = FraudDetector(
             male_fraud_proportion, female_fraud_proportion, sample_size, classifier_name, random_training_set
@@ -32,13 +34,15 @@ class TransactionsOverTime:
         self._alerts_males, self._alerts_females, self._alerts_fraud_males, self._alerts_fraud_females = [], [], [], []
         self._ofr_males, self._ofr_females, self._tfr_males, self._tfr_females = [], [], [], []
         self._random: bool = random_training_set
+        self._title_scenario: str = title_scenario
+        self._percentage_alerts: float = percentage_alerts
 
     def start_transactions(self) -> None:
         """
         Goes of the specified amount of days and evaluates the transactions for fraud.
         """
         test_sets = self._split_test_set()
-        number_of_alerts: int = int(len(test_sets[0]) * 0.01)
+        number_of_alerts: int = int(len(test_sets[0]) * self._percentage_alerts)
 
         for day in range(1, self._amount_of_days + 1):
             self._fraud_detector.test_transactions = test_sets[day - 1]
@@ -121,6 +125,7 @@ class TransactionsOverTime:
         plt.ylim(0, 1)
         plt.xlabel('Amount of days')
         plt.ylabel('Metric Value')
+        plt.title(f"{self._title_scenario} with {self._percentage_alerts * 100}% alerts")
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
@@ -144,8 +149,8 @@ class TransactionsOverTime:
             average_list.append(average / n_iterations)
         return average_list
 
-    @staticmethod
     def _plot_metric(
+            self,
             metric1_males: list[float], metric2_males: list[float],
             metric1_females: list[float], metric2_females: list[float],
             metric1_name: str, metric2_name: str,
@@ -169,6 +174,7 @@ class TransactionsOverTime:
         # Add axis labels and legend outside of the plot
         plt.xlabel('Amount of days')
         plt.ylabel('Metric Value')
+        plt.title(f"{self._title_scenario} with {self._percentage_alerts * 100}% alerts")
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
