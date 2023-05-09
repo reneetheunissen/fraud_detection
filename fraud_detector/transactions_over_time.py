@@ -69,10 +69,10 @@ class TransactionsOverTime:
                 predictions = predictions.sort_values(by='fraud', ascending=False)
                 if self._active_learning is True:
                     most_uncertain_indices = [index for index, _ in class_votes[:number_of_alerts]]
-                    # most_uncertain_indices = np.argsort(entropies)[:number_of_active_learning].tolist()
                     alerts_index = predictions.iloc[:(number_of_alerts - number_of_active_learning)].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
                     exploratory_alerts = informative_data[informative_data.index.isin(most_uncertain_indices) == True]
+                    print(f'{len(exploratory_alerts)} exploratory alerts added')
                     alerts = pd.concat([alerts, exploratory_alerts])
                 else:
                     alerts_index = predictions.iloc[:number_of_alerts].index

@@ -54,6 +54,8 @@ class FraudDetector:
         # Initialize options for boxplot and violinplot visualizers
         self.boxplot_visualizer = Boxplot(self.historical_data)
         self.violinplot_visualizer = Violinplot(self.historical_data)
+        self._counter: Counter = Counter()
+        self._class_votes_list: list[tuple[int, Counter]] = []
 
         # print(f"Total proportion: {self.get_proportion()}")
         # print(f"Male proportion: {self.get_proportion(column_name='gender_M', value=1)}")
