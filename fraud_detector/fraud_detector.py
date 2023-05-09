@@ -1,7 +1,10 @@
+from collections import Counter
 from typing import Optional, Union
 
+import numpy as np
 import pandas as pd
 from pandas import DataFrame
+from scipy.stats import entropy
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import make_pipeline, Pipeline
@@ -20,6 +23,7 @@ class FraudDetector:
             sample_size: int,
             classifier_name: str,
             random_training_set: bool = False,
+            active_learning: bool = False,
     ) -> None:
         self.train_test_creator: TrainTestCreator = TrainTestCreator()
         if not random_training_set:
@@ -38,8 +42,11 @@ class FraudDetector:
         self.predictor: Predictor
         self._classifier: Union[LogisticRegression, RandomForestClassifier] = \
             self._initialize_classifier(classifier_name)
+        self._active_learning: bool = active_learning
+        self._counter: Counter = Counter()
+        self._class_votes_list: list[tuple[int, Counter]] = []
 
-    def detect_fraud(self) -> tuple[DataFrame, DataFrame]:
+    def detect_fraud(self) -> tuple[DataFrame, DataFrame, list[tuple[int, Counter]]]:
         """
         Detects fraud and returns a dataframe of the predictions with information on their actual label
         and a dataframe on the test data with all information including actual and predicted label
@@ -67,13 +74,24 @@ class FraudDetector:
             index=self.predictor.X_test.index
         )
 
+        if self._active_learning and isinstance(self._classifier, RandomForestClassifier):
+            for index in self.predictor.X_test.index:
+                self._counter = Counter()
+                for tree in self._classifier.estimators_:
+                    predicted_label = tree.predict([self.predictor.X_test.loc[index]])[0]
+                    self._counter[predicted_label] += 1
+                self._class_votes_list.append((int(index), self._counter))
+
+                # Sort the list based on entropies
+                self._class_votes_list.sort(key=lambda x: entropy(list(x[1].values())), reverse=True)
+
         # Get an informative test set
         informative_test_data = self.predictor.X_test.copy()
         informative_test_data['is_fraud'] = self.predictor.y_test
         informative_test_data['predicted'] = predictions['fraud']
         informative_test_data['predicted'] = informative_test_data['predicted'].apply(lambda x: 1 if x > 0.5 else 0)
 
-        return predictions, informative_test_data
+        return predictions, informative_test_data, self._class_votes_list
 
     def get_proportion(
             self,
