@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from pandas import DataFrame
-from scipy.stats import entropy
 
 from fraud_detector import FraudDetector
 from information_and_metrics import ConfusionMatrixMetrics
@@ -72,7 +71,6 @@ class TransactionsOverTime:
                     alerts_index = predictions.iloc[:(number_of_alerts - number_of_active_learning)].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
                     exploratory_alerts = informative_data[informative_data.index.isin(most_uncertain_indices) == True]
-                    print(f'{len(exploratory_alerts)} exploratory alerts added')
                     alerts = pd.concat([alerts, exploratory_alerts])
                 else:
                     alerts_index = predictions.iloc[:number_of_alerts].index
@@ -222,15 +220,30 @@ class TransactionsOverTime:
         """
         test_data, combined_data = self._fraud_detector.train_test_creator.get_test_and_combined_data()
         test_data = combined_data[combined_data.index.isin(test_data.index) == True]
+        test_data.reset_index(drop=True, inplace=True)
         fraud_data = test_data[test_data['is_fraud'] == 1]
         non_fraud_data = test_data[test_data['is_fraud'] == 0]
 
-        current_fraud_rate = round(len(fraud_data) / len(test_data), 3)
+        fraud_data_males = fraud_data[fraud_data['gender_M'] == 1]
+        fraud_data_females = fraud_data[fraud_data['gender_F'] == 1]
+
+        current_fraud_rate_males = round(len(fraud_data_males) / len(test_data), 3)
+        current_fraud_rate_females = round(len(fraud_data_females) / len(test_data), 3)
         desired_fraud_rate: float = 0.1
 
-        if current_fraud_rate < desired_fraud_rate:
-            transactions_to_remove = int(len(test_data) - len(fraud_data) / desired_fraud_rate)
-            non_fraud_indices = non_fraud_data.index
+        if current_fraud_rate_males < desired_fraud_rate:
+            transactions_to_remove = int(
+                len(test_data[test_data['gender_M'] == 1]) - len(fraud_data_males) / desired_fraud_rate
+            )
+            non_fraud_indices = non_fraud_data[non_fraud_data['gender_M'] == 1].index
+            index_to_drop = np.random.choice(non_fraud_indices, size=transactions_to_remove, replace=False)
+            test_data.drop(index=index_to_drop, inplace=True)
+
+        if current_fraud_rate_females < desired_fraud_rate:
+            transactions_to_remove = int(
+                len(test_data[test_data['gender_F'] == 1]) - len(fraud_data_females) / desired_fraud_rate
+            )
+            non_fraud_indices = non_fraud_data[non_fraud_data['gender_F'] == 1].index
             index_to_drop = np.random.choice(non_fraud_indices, size=transactions_to_remove, replace=False)
             test_data.drop(index=index_to_drop, inplace=True)
 

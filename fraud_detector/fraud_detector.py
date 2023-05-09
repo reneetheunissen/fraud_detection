@@ -1,7 +1,6 @@
 from collections import Counter
 from typing import Optional, Union
 
-import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from scipy.stats import entropy

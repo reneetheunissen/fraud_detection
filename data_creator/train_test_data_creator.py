@@ -1,5 +1,6 @@
 from math import ceil
 
+import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
@@ -25,7 +26,7 @@ class TrainTestCreator:
 
     def create_test_set(self) -> DataFrame:
         """
-        Creates the test set with 11% fraud.
+        Creates the test set with 10% fraud.
 
         :return: The test dataframe
         """
@@ -46,15 +47,32 @@ class TrainTestCreator:
         :param sample_size: The sample size
         :return: The train dataframe
         """
-        train_data = self._combined_data[self._combined_data.index.isin(self._train_data.index) == True]
+        train_data = self._combined_data[self._combined_data.index.isin(self._train_data.index) == True].copy()
+        train_data.reset_index(drop=True, inplace=True)
         # First we need to adjust the training data to ensure we get around 10% fraud in it
         # We get all fraud data and a random sample of non-fraud data
         train_data_fraud = train_data[train_data['is_fraud'] == 1]
-        train_data_non_fraud = train_data[train_data['is_fraud'] == 0].sample(
-            n=(len(train_data_fraud) * 9),
-            random_state=0
+        male_fraud = train_data_fraud[train_data_fraud['gender_M'] == 1]
+        female_fraud = train_data_fraud[train_data_fraud['gender_F'] == 1]
+        if len(male_fraud) > len(female_fraud):
+            amount_to_drop: int = len(male_fraud) - len(female_fraud)
+            index_to_drop = np.random.choice(male_fraud.index, size=amount_to_drop, replace=False)
+            train_data.drop(index=index_to_drop, inplace=True)
+        elif len(female_fraud) > len(male_fraud):
+            amount_to_drop: int = len(female_fraud) - len(male_fraud)
+            index_to_drop = np.random.choice(female_fraud.index, size=amount_to_drop, replace=False)
+            train_data.drop(index=index_to_drop, inplace=True)
+
+        train_data_fraud = train_data[train_data['is_fraud'] == 1]
+        train_data_non_fraud = train_data[train_data['is_fraud'] == 0]
+        non_fraud_amount_to_drop: int = len(train_data_non_fraud) - len(train_data_fraud) * 9
+        index_to_drop = np.random.choice(
+            train_data_non_fraud.index,
+            size=non_fraud_amount_to_drop,
+            replace=False,
         )
-        train_data = pd.concat([train_data_fraud, train_data_non_fraud])
+        train_data.drop(index=index_to_drop, inplace=True)
+
         return train_data.sample(n=sample_size, random_state=0)
 
     def create_train_data(
