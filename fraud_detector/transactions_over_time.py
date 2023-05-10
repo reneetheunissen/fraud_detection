@@ -180,7 +180,7 @@ class TransactionsOverTime:
         plt.plot(metric2_males, label=f'{metric2_name} males', color=colors['male'], linestyle=linestyles[1])
         plt.plot(metric2_females, label=f'{metric2_name} females', color=colors['female'], linestyle=linestyles[1])
         if metric1_name in ['FDR']:
-            plt.ylim(0, 0.25)
+            plt.ylim(0, 0.5)
         else:
             plt.ylim(0, 1)
 
