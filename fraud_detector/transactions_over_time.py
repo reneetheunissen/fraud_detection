@@ -77,7 +77,6 @@ class TransactionsOverTime:
                         exploratory_alerts = informative_data[
                             informative_data.index.isin(most_uncertain_indices) == True
                             ]
-                        print(len(exploratory_alerts))
                     else:
                         exploratory_alerts = informative_data[
                             ~informative_data.index.isin(alerts_index)
@@ -152,7 +151,7 @@ class TransactionsOverTime:
         plt.ylim(0, 1)
         plt.xlabel('Amount of days')
         plt.ylabel('Metric Value')
-        plt.title(f"{self._title_scenario} with {self._percentage_alerts * 100}% alerts")
+        plt.title(f"{self._title_scenario}, {self._percentage_alerts * 100}% alerts")
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
