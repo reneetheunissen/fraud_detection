@@ -23,9 +23,9 @@ bank_process: TransactionsOverTime = TransactionsOverTime(
     sample_size=6500,
     amount_of_days=25,
     title_scenario="Over-representation",
-    percentage_alerts=0.01,
+    percentage_alerts=0.05,
     active_learning=True,
     percentage_active_learning=0.1,
-    al_type_name='random',
+    al_type_name='class votes',
 )
 bank_process.plot(n_iterations=25)

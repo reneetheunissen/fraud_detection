@@ -25,8 +25,8 @@ class TransactionsOverTime:
                  percentage_active_learning: float = 0.1,
                  ) -> None:
         self._fraud_detector: FraudDetector = FraudDetector(
-            male_fraud_proportion, female_fraud_proportion, sample_size, classifier_name, random_training_set,
-            active_learning
+            male_fraud_proportion, female_fraud_proportion, sample_size, classifier_name, al_type_name,
+            random_training_set, active_learning
         )
         self._amount_of_days: int = amount_of_days
         self._historical_data_all_labeled: DataFrame = self._fraud_detector.historical_data
@@ -77,6 +77,7 @@ class TransactionsOverTime:
                         exploratory_alerts = informative_data[
                             informative_data.index.isin(most_uncertain_indices) == True
                             ]
+                        print(len(exploratory_alerts))
                     else:
                         exploratory_alerts = informative_data[
                             ~informative_data.index.isin(alerts_index)

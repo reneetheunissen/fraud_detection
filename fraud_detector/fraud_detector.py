@@ -78,6 +78,7 @@ class FraudDetector:
         )
 
         if self._active_learning and self._al_type_name == 'class votes':
+            print("WE GOT HERE")
             for index in self.predictor.X_test.index:
                 self._counter = Counter()
                 for tree in self._classifier.estimators_:
