@@ -9,7 +9,7 @@ bank_process: TransactionsOverTime = TransactionsOverTime(
     random_training_set=True,
     amount_of_days=25,
     title_scenario="Random Sampling",
-    percentage_alerts=0.05,
+    percentage_alerts=0.1,
 )
 bank_process.plot(n_iterations=25)
 
@@ -23,6 +23,6 @@ bank_process: TransactionsOverTime = TransactionsOverTime(
     sample_size=6500,
     amount_of_days=25,
     title_scenario="Over-representation",
-    percentage_alerts=0.05,
+    percentage_alerts=0.1,
 )
 bank_process.plot(n_iterations=25)
