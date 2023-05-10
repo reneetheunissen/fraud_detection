@@ -4,7 +4,7 @@ print("Random Sampling")
 bank_process: TransactionsOverTime = TransactionsOverTime(
     male_fraud_proportion=0.2,
     female_fraud_proportion=0.1,
-    classifier_name='RandomForest',
+    classifier_name='LogisticRegression',
     sample_size=6500,
     random_training_set=True,
     amount_of_days=25,
@@ -19,7 +19,7 @@ print("Selection bias scenario 2")
 bank_process: TransactionsOverTime = TransactionsOverTime(
     male_fraud_proportion=0.3,
     female_fraud_proportion=0.1,
-    classifier_name='RandomForest',
+    classifier_name='LogisticRegression',
     sample_size=6500,
     amount_of_days=25,
     title_scenario="Over-representation",
