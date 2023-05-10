@@ -67,15 +67,20 @@ class TransactionsOverTime:
                 # Sort based on certainty of fraud
                 predictions = predictions.sort_values(by='fraud', ascending=False)
                 if self._active_learning is True:
+                    print("REACHED HERE!")
                     most_uncertain_indices = [index for index, _ in class_votes[:number_of_alerts]]
                     alerts_index = predictions.iloc[:(number_of_alerts - number_of_active_learning)].index
+                    print("ALSO REACHED HERE!")
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
                     exploratory_alerts = informative_data[informative_data.index.isin(most_uncertain_indices) == True]
                     alerts = pd.concat([alerts, exploratory_alerts])
+                    alerts_index = alerts.index
+                    print("CONCATENATED HERE!")
                 else:
                     alerts_index = predictions.iloc[:number_of_alerts].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
 
+            print("NOW WE GO GET THE MALES ONES")
             self._alerts_males.append(len(alerts[alerts['gender_M'] == 1]) / len(alerts))
             self._alerts_females.append(1 - self._alerts_males[-1])
             fraud_alerts: DataFrame = alerts[alerts['is_fraud'] == 1]
@@ -83,6 +88,7 @@ class TransactionsOverTime:
             self._alerts_fraud_females.append(len(fraud_alerts[fraud_alerts['gender_F'] == 1]) / len(alerts))
 
             # Add alerts to historical data
+            print("LETS ADD TO HIST DATA HERE!")
             informative_data.drop(columns=['predicted'], axis=1, inplace=True)
             self._fraud_detector.historical_data = pd.concat(
                 [
@@ -90,6 +96,7 @@ class TransactionsOverTime:
                     informative_data[informative_data.index.isin(alerts_index) == True]
                 ]
             )
+            print(f'day {day} ended')
 
     def plot(self, n_iterations: int = 5) -> None:
         """
