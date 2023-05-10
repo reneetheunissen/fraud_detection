@@ -16,6 +16,7 @@ class TransactionsOverTime:
                  female_fraud_proportion: float,
                  classifier_name: str,
                  title_scenario: str,
+                 al_type_name: str,
                  sample_size: int = 2500,
                  random_training_set: bool = False,
                  amount_of_days: int = 3,
@@ -41,6 +42,7 @@ class TransactionsOverTime:
         self._percentage_alerts: float = percentage_alerts
         self._active_learning: bool = active_learning
         self._percentage_active_learning: float = percentage_active_learning
+        self._al_type_name: str = al_type_name
 
     def start_transactions(self) -> None:
         """
@@ -67,12 +69,22 @@ class TransactionsOverTime:
                 # Sort based on certainty of fraud
                 predictions = predictions.sort_values(by='fraud', ascending=False)
                 if self._active_learning is True:
-                    most_uncertain_indices = [index for index, _ in class_votes[:number_of_alerts]]
                     alerts_index = predictions.iloc[:(number_of_alerts - number_of_active_learning)].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
-                    exploratory_alerts = informative_data[informative_data.index.isin(most_uncertain_indices) == True]
+
+                    if self._al_type_name == 'class votes':
+                        most_uncertain_indices = [index for index, _ in class_votes[:number_of_alerts]]
+                        exploratory_alerts = informative_data[
+                            informative_data.index.isin(most_uncertain_indices) == True
+                            ]
+                    else:
+                        exploratory_alerts = informative_data[
+                            ~informative_data.index.isin(alerts_index)
+                        ].sample(n=number_of_active_learning)
+
                     alerts = pd.concat([alerts, exploratory_alerts])
                     alerts_index = alerts.index
+
                 else:
                     alerts_index = predictions.iloc[:number_of_alerts].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
