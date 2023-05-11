@@ -3,7 +3,7 @@ from fraud_detector import TransactionsOverTime
 bank_process: TransactionsOverTime = TransactionsOverTime(
     male_fraud_proportion=0.3,
     female_fraud_proportion=0.05,
-    classifier_name='RandomForest',
+    classifier_name='LogisticRegression',
     sample_size=6500,
     amount_of_days=25,
     title_scenario="Biased Data, Random Forest, random sample",
@@ -31,7 +31,7 @@ bank_process.plot(n_iterations=25)
 bank_process: TransactionsOverTime = TransactionsOverTime(
     male_fraud_proportion=0.3,
     female_fraud_proportion=0.05,
-    classifier_name='RandomForest',
+    classifier_name='LogisticRegression',
     sample_size=6500,
     amount_of_days=25,
     title_scenario="Biased Data, Random Forest, class votes uncertainty",
