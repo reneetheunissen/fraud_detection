@@ -77,6 +77,14 @@ class TransactionsOverTime:
                         exploratory_alerts = informative_data[
                             informative_data.index.isin(most_uncertain_indices) == True
                             ]
+                    elif self._al_type_name == 'uncertainty':
+                        predictions['max_probability'] = np.max(predictions, axis=1)
+                        most_uncertain_indices = predictions.sort_values(
+                            'max_probability'
+                        ).iloc[:number_of_active_learning].index
+                        exploratory_alerts = informative_data[
+                            informative_data.index.isin(most_uncertain_indices) == True
+                            ]
                     else:
                         exploratory_alerts = informative_data[
                             ~informative_data.index.isin(alerts_index)
