@@ -85,6 +85,16 @@ class TransactionsOverTime:
                         exploratory_alerts = informative_data[
                             informative_data.index.isin(most_uncertain_indices) == True
                             ]
+                    elif self._al_type_name == 'representative':
+                        centroid_labeled_instances = np.mean(self._fraud_detector.historical_data, axis=0)
+                        # Using the Euclidean distance for distance calculations
+                        informative_data['representativeness'] = -1 * np.linalg.norm(
+                            self._fraud_detector.test_transactions - centroid_labeled_instances,
+                            axis=1,
+                        )
+                        exploratory_alerts = informative_data.sort_values(
+                            by='representativeness', ascending=False
+                        ).iloc[:number_of_active_learning]
                     else:
                         exploratory_alerts = informative_data[
                             ~informative_data.index.isin(alerts_index)
