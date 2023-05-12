@@ -21,6 +21,7 @@ class FraudDetector:
             female_fraud_proportion: float,
             sample_size: int,
             classifier_name: str,
+            al_type_name: str,
             random_training_set: bool = False,
             active_learning: bool = False,
     ) -> None:
@@ -44,6 +45,7 @@ class FraudDetector:
         self._active_learning: bool = active_learning
         self._counter: Counter = Counter()
         self._class_votes_list: list[tuple[int, Counter]] = []
+        self._al_type_name: str = al_type_name
 
     def detect_fraud(self) -> tuple[DataFrame, DataFrame, list[tuple[int, Counter]]]:
         """
@@ -75,7 +77,7 @@ class FraudDetector:
             index=self.predictor.X_test.index
         )
 
-        if self._active_learning and isinstance(self._classifier, RandomForestClassifier):
+        if self._active_learning and self._al_type_name == 'class votes':
             for index in self.predictor.X_test.index:
                 self._counter = Counter()
                 for tree in self._classifier.estimators_:
