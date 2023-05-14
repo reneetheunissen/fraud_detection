@@ -28,6 +28,7 @@ class MetricsPerObservedFraudRate:
 
     def plot_metrics_by_observed_fraud(self,
                                        classifier_name: str,
+                                       plot_title: str,
                                        sample_size: int = 2500,
                                        ):
         # Iterate over observed fraud rates
@@ -40,9 +41,10 @@ class MetricsPerObservedFraudRate:
                 male_fraud_proportion=observed_fraud_rate,
                 female_fraud_proportion=0.1,
                 sample_size=sample_size,
+                al_type_name='None',
             )
             # Create predictions
-            _, informative_test_data_random = fraud_detector.detect_fraud()
+            _, informative_test_data_random, _ = fraud_detector.detect_fraud()
             # Initialize confusion matrix
             confusion_matrix_metrics = ConfusionMatrixMetrics(informative_test_data_random)
             # Get confusion matrix metrics
@@ -71,11 +73,11 @@ class MetricsPerObservedFraudRate:
             self._metric6_females[observed_fraud_rate] = female_metrics[5]
 
         # PLOT 3 TIMES
-        self._plot('FPR')
-        self._plot('FDR')
-        self._plot('RPP')
+        self._plot('FPR', plot_title)
+        self._plot('FDR', plot_title)
+        self._plot('RPP', plot_title)
 
-    def _plot(self, group_to_use: str) -> None:
+    def _plot(self, group_to_use: str, plot_title: str) -> None:
         """
         Plots the graph with the relevant metrics.
         :param group_to_use: which group of metrics to plot
@@ -112,6 +114,7 @@ class MetricsPerObservedFraudRate:
         # Add axis labels and legend outside of the plot
         plt.xlabel('Observed Fraud Rate of Males')
         plt.ylabel('Metric Value')
+        plt.title(plot_title)
         plt.ylim(0, 1)
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
