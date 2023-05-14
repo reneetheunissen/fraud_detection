@@ -16,6 +16,7 @@ class TransactionsOverTime:
                  female_fraud_proportion: float,
                  classifier_name: str,
                  title_scenario: str,
+                 al_type_name: str,
                  sample_size: int = 2500,
                  random_training_set: bool = False,
                  amount_of_days: int = 3,
@@ -24,8 +25,8 @@ class TransactionsOverTime:
                  percentage_active_learning: float = 0.1,
                  ) -> None:
         self._fraud_detector: FraudDetector = FraudDetector(
-            male_fraud_proportion, female_fraud_proportion, sample_size, classifier_name, random_training_set,
-            active_learning
+            male_fraud_proportion, female_fraud_proportion, sample_size, classifier_name, al_type_name,
+            random_training_set, active_learning
         )
         self._amount_of_days: int = amount_of_days
         self._historical_data_all_labeled: DataFrame = self._fraud_detector.historical_data
@@ -41,6 +42,7 @@ class TransactionsOverTime:
         self._percentage_alerts: float = percentage_alerts
         self._active_learning: bool = active_learning
         self._percentage_active_learning: float = percentage_active_learning
+        self._al_type_name: str = al_type_name
 
     def start_transactions(self) -> None:
         """
@@ -67,11 +69,40 @@ class TransactionsOverTime:
                 # Sort based on certainty of fraud
                 predictions = predictions.sort_values(by='fraud', ascending=False)
                 if self._active_learning is True:
-                    most_uncertain_indices = [index for index, _ in class_votes[:number_of_alerts]]
                     alerts_index = predictions.iloc[:(number_of_alerts - number_of_active_learning)].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
-                    exploratory_alerts = informative_data[informative_data.index.isin(most_uncertain_indices) == True]
+
+                    if self._al_type_name == 'class votes':
+                        most_uncertain_indices = [index for index, _ in class_votes[:number_of_alerts]]
+                        exploratory_alerts = informative_data[
+                            informative_data.index.isin(most_uncertain_indices) == True
+                            ]
+                    elif self._al_type_name == 'uncertainty':
+                        predictions['max_probability'] = np.max(predictions, axis=1)
+                        most_uncertain_indices = predictions.sort_values(
+                            'max_probability'
+                        ).iloc[:number_of_active_learning].index
+                        exploratory_alerts = informative_data[
+                            informative_data.index.isin(most_uncertain_indices) == True
+                            ]
+                    elif self._al_type_name == 'representative':
+                        centroid_labeled_instances = np.mean(self._fraud_detector.historical_data, axis=0)
+                        # Using the Euclidean distance for distance calculations
+                        informative_data['representativeness'] = -1 * np.linalg.norm(
+                            self._fraud_detector.test_transactions - centroid_labeled_instances,
+                            axis=1,
+                        )
+                        exploratory_alerts = informative_data.sort_values(
+                            by='representativeness', ascending=False
+                        ).iloc[:number_of_active_learning]
+                    else:
+                        exploratory_alerts = informative_data[
+                            ~informative_data.index.isin(alerts_index)
+                        ].sample(n=number_of_active_learning)
+
                     alerts = pd.concat([alerts, exploratory_alerts])
+                    alerts_index = alerts.index
+
                 else:
                     alerts_index = predictions.iloc[:number_of_alerts].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
@@ -83,7 +114,10 @@ class TransactionsOverTime:
             self._alerts_fraud_females.append(len(fraud_alerts[fraud_alerts['gender_F'] == 1]) / len(alerts))
 
             # Add alerts to historical data
-            informative_data.drop(columns=['predicted'], axis=1, inplace=True)
+            if self._active_learning and self._al_type_name == 'representative':
+                informative_data.drop(columns=['predicted', 'representativeness'], axis=1, inplace=True)
+            else:
+                informative_data.drop(columns=['predicted'], axis=1, inplace=True)
             self._fraud_detector.historical_data = pd.concat(
                 [
                     self._fraud_detector.historical_data,
@@ -138,7 +172,7 @@ class TransactionsOverTime:
         plt.ylim(0, 1)
         plt.xlabel('Amount of days')
         plt.ylabel('Metric Value')
-        plt.title(f"{self._title_scenario} with {self._percentage_alerts * 100}% alerts")
+        plt.title(f"{self._title_scenario}, {self._percentage_alerts * 100}% alerts")
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
