@@ -156,27 +156,36 @@ class TransactionsOverTime:
         ofr_females_avg, tfr_females_avg = self._get_averages(self._ofr_females, n_iterations), \
                                            self._get_averages(self._tfr_females, n_iterations)
 
-        self._plot_metric(fpr_males_avg, fnr_males_avg, fpr_females_avg, fnr_females_avg, 'FPR', 'FNR')
-        self._plot_metric(fdr_males_avg, for_males_avg, fdr_females_avg, for_females_avg, 'FDR', 'FOR')
-        self._plot_metric(rpp_males_avg, acc_males_avg, rpp_females_avg, acc_females_avg, 'RPP', 'ACC')
-        self._plot_metric(ofr_males_avg, tfr_males_avg, ofr_females_avg, tfr_females_avg, 'OFR', 'TFR')
+        alerts_males_avg = self._get_averages(self._alerts_males, n_iterations)
+        alerts_females_avg = self._get_averages(self._alerts_females, n_iterations)
+        alerts_fraud_males_avg = self._get_averages(self._alerts_fraud_males, n_iterations)
+        alerts_fraud_females_avg = self._get_averages(self._alerts_fraud_females, n_iterations)
 
-        plt.plot(self._get_averages(self._alerts_males, n_iterations), label='Alerts males', color='tab:cyan')
-        plt.plot(self._get_averages(self._alerts_females, n_iterations), label='Alerts females', color='tab:pink')
-        plt.plot(self._get_averages(self._alerts_fraud_males, n_iterations),
-                 label='True fraud males',  color='tab:cyan', linestyle='dashed')
-        plt.plot(self._get_averages(self._alerts_fraud_females, n_iterations),
-                 label='True fraud females',  color='tab:pink', linestyle='dashed')
+        self._plot_metrics(fpr_males_avg, fnr_males_avg, fpr_females_avg, fnr_females_avg, 'FPR', 'FNR')
+        self._plot_metrics(fdr_males_avg, for_males_avg, fdr_females_avg, for_females_avg, 'FDR', 'FOR')
+        self._plot_metrics(ofr_males_avg, tfr_males_avg, ofr_females_avg, tfr_females_avg, 'OFR', 'TFR')
+        self._plot_metrics(alerts_males_avg, alerts_fraud_males_avg, alerts_females_avg, alerts_fraud_females_avg,
+                           'Alerts', 'True fraud')
 
-        # Add axis labels and legend outside of the plot
-        plt.ylim(0, 1)
-        plt.xlabel('Amount of days')
-        plt.ylabel('Metric Value')
-        plt.title(f"{self._title_scenario}, {self._percentage_alerts * 100}% alerts")
-        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-        plt.tight_layout(rect=[0, 0, 1, 0.95])
+        self._plot_single_metric(rpp_males_avg, rpp_females_avg, 'RPP')
+        self._plot_single_metric(acc_males_avg, acc_females_avg, 'ACC')
 
-        plt.show()
+        # plt.plot(self._get_averages(self._alerts_males, n_iterations), label='Alerts males', color='tab:cyan')
+        # plt.plot(self._get_averages(self._alerts_females, n_iterations), label='Alerts females', color='tab:pink')
+        # plt.plot(self._get_averages(self._alerts_fraud_males, n_iterations),
+        #          label='True fraud males',  color='tab:cyan', linestyle='dashed')
+        # plt.plot(self._get_averages(self._alerts_fraud_females, n_iterations),
+        #          label='True fraud females',  color='tab:pink', linestyle='dashed')
+        #
+        # # Add axis labels and legend outside of the plot
+        # plt.ylim(0, 1)
+        # plt.xlabel('Amount of days')
+        # plt.ylabel('Metric Value')
+        # plt.title(f"{self._title_scenario}, {self._percentage_alerts * 100}% alerts")
+        # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+        # plt.tight_layout(rect=[0, 0, 1, 0.95])
+        #
+        # plt.show()
 
     def _get_averages(self, nested_list: list[list[float]], n_iterations: int) -> list[float]:
         """
@@ -196,7 +205,35 @@ class TransactionsOverTime:
             average_list.append(average / n_iterations)
         return average_list
 
-    def _plot_metric(
+    def _plot_single_metric(
+            self, metric1_males: list[float], metric1_females: list[float], metric1_name: str,
+    ) -> None:
+        """
+        Plots the metrics.
+        """
+        colors: dict[str, str] = {'male': 'tab:cyan', 'female': 'tab:pink'}
+        linestyles: list[str] = ['solid', 'dashed']
+
+        plt.plot(metric1_males, label=f'{metric1_name} males', color=colors['male'], linestyle=linestyles[0])
+        plt.plot(metric1_females, label=f'{metric1_name} females', color=colors['female'], linestyle=linestyles[0])
+
+        if metric1_name in ['RPP']:
+            plt.ylim(0, 0.25)
+        elif metric1_name in ['ACC']:
+            plt.ylim(0.5, 1)
+        else:
+            plt.ylim(0, 1)
+
+        # Add axis labels and legend outside of the plot
+        plt.xlabel('Amount of days')
+        plt.ylabel('Metric Value')
+        plt.title(f"{self._title_scenario} with {self._percentage_alerts * 100}% alerts")
+        plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+        plt.show()
+
+    def _plot_metrics(
             self,
             metric1_males: list[float], metric2_males: list[float],
             metric1_females: list[float], metric2_females: list[float],
