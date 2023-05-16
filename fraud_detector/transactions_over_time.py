@@ -114,7 +114,7 @@ class TransactionsOverTime:
             self._alerts_fraud_females.append(len(fraud_alerts[fraud_alerts['gender_F'] == 1]) / len(alerts))
 
             # Add alerts to historical data
-            if self._active_learning and self._al_type_name == 'representative':
+            if informative_data.get('representativeness'):
                 informative_data.drop(columns=['predicted', 'representativeness'], axis=1, inplace=True)
             else:
                 informative_data.drop(columns=['predicted'], axis=1, inplace=True)
