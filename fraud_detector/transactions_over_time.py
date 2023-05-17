@@ -225,7 +225,7 @@ class TransactionsOverTime:
         """
         Plots the metrics.
         """
-        colors: dict[str, str] = {'male': 'tab:cyan', 'female': 'tab:pink'}
+        colors: dict[str, str] = {'male': '#1A98A6', 'female': '#E1AD01'}
         linestyles: list[str] = ['solid', 'dashed']
 
         plt.plot(metric1_males, label=f'{metric1_name} males', color=colors['male'], linestyle=linestyles[0])
