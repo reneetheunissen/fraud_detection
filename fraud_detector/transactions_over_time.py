@@ -216,6 +216,11 @@ class TransactionsOverTime:
 
         plt.show()
 
+        plot_name: str = f'{metric1_name}{int(self._percentage_alerts)}'
+        if self._active_learning:
+            plot_name = f'{plot_name}-{int(self._percentage_active_learning)}-{self._al_type_name}'
+        plt.savefig(f'{plot_name}.png')
+
     def _plot_metrics(
             self,
             metric1_males: list[float], metric2_males: list[float],
@@ -246,6 +251,11 @@ class TransactionsOverTime:
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
         plt.show()
+
+        plot_name: str = f'{metric1_name}{int(self._percentage_alerts)}'
+        if self._active_learning:
+            plot_name = f'{plot_name}-{int(self._percentage_active_learning)}-{self._al_type_name}'
+        plt.savefig(f'{plot_name}.png')
 
     def _split_test_set(self) -> list[DataFrame]:
         """
