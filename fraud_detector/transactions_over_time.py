@@ -165,27 +165,10 @@ class TransactionsOverTime:
         self._plot_metrics(fdr_males_avg, for_males_avg, fdr_females_avg, for_females_avg, 'FDR', 'FOR')
         self._plot_metrics(ofr_males_avg, tfr_males_avg, ofr_females_avg, tfr_females_avg, 'OFR', 'TFR')
         self._plot_metrics(alerts_males_avg, alerts_fraud_males_avg, alerts_females_avg, alerts_fraud_females_avg,
-                           'Alerts', 'True fraud')
+                           'Alert proportion', 'Fraud proportion')
 
         self._plot_single_metric(rpp_males_avg, rpp_females_avg, 'RPP')
         self._plot_single_metric(acc_males_avg, acc_females_avg, 'ACC')
-
-        # plt.plot(self._get_averages(self._alerts_males, n_iterations), label='Alerts males', color='tab:cyan')
-        # plt.plot(self._get_averages(self._alerts_females, n_iterations), label='Alerts females', color='tab:pink')
-        # plt.plot(self._get_averages(self._alerts_fraud_males, n_iterations),
-        #          label='True fraud males',  color='tab:cyan', linestyle='dashed')
-        # plt.plot(self._get_averages(self._alerts_fraud_females, n_iterations),
-        #          label='True fraud females',  color='tab:pink', linestyle='dashed')
-        #
-        # # Add axis labels and legend outside of the plot
-        # plt.ylim(0, 1)
-        # plt.xlabel('Amount of days')
-        # plt.ylabel('Metric Value')
-        # plt.title(f"{self._title_scenario}, {self._percentage_alerts * 100}% alerts")
-        # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-        # plt.tight_layout(rect=[0, 0, 1, 0.95])
-        #
-        # plt.show()
 
     def _get_averages(self, nested_list: list[list[float]], n_iterations: int) -> list[float]:
         """
@@ -211,7 +194,7 @@ class TransactionsOverTime:
         """
         Plots the metrics.
         """
-        colors: dict[str, str] = {'male': 'tab:cyan', 'female': 'tab:pink'}
+        colors: dict[str, str] = {'male': '#1A98A6', 'female': '#E1AD01'}
         linestyles: list[str] = ['solid', 'dashed']
 
         plt.plot(metric1_males, label=f'{metric1_name} males', color=colors['male'], linestyle=linestyles[0])
