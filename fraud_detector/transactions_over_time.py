@@ -55,7 +55,7 @@ class TransactionsOverTime:
 
         for day in range(1, self._amount_of_days + 1):
             self._fraud_detector.test_transactions = test_sets[day - 1]
-            predictions, informative_data, class_votes = self._fraud_detector.detect_fraud()
+            predictions, informative_data = self._fraud_detector.detect_fraud()
 
             # Get metrics
             confusion_matrix_metrics = ConfusionMatrixMetrics(informative_data)
@@ -73,12 +73,7 @@ class TransactionsOverTime:
                     alerts_index = predictions.iloc[:(number_of_alerts - number_of_active_learning)].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
 
-                    if self._al_type_name == 'class votes':
-                        most_uncertain_indices = [index for index, _ in class_votes[:number_of_alerts]]
-                        exploratory_alerts = informative_data[
-                            informative_data.index.isin(most_uncertain_indices) == True
-                            ]
-                    elif self._al_type_name == 'uncertainty':
+                    if self._al_type_name == 'uncertainty':
                         predictions['max_probability'] = np.max(predictions, axis=1)
                         most_uncertain_indices = predictions.sort_values(
                             'max_probability'
@@ -220,8 +215,6 @@ class TransactionsOverTime:
             plot_name = f'{plot_name}-{int(self._percentage_active_learning * 100)}-{self._al_type_name}'
         plt.savefig(f'{plot_name}.png')
 
-        plt.show()
-
     def _plot_metrics(
             self,
             metric1_males: list[float], metric2_males: list[float],
@@ -255,8 +248,6 @@ class TransactionsOverTime:
         if self._active_learning:
             plot_name = f'{plot_name}-{int(self._percentage_active_learning * 100)}-{self._al_type_name}'
         plt.savefig(f'{plot_name}.png')
-
-        plt.show()
 
     def _split_test_set(self) -> list[DataFrame]:
         """
