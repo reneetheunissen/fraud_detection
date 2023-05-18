@@ -17,9 +17,9 @@ class TransactionsOverTime:
                  classifier_name: str,
                  title_scenario: str,
                  al_type_name: str,
-                 sample_size: int = 2500,
+                 sample_size: int = 6500,
                  random_training_set: bool = False,
-                 amount_of_days: int = 3,
+                 amount_of_days: int = 25,
                  percentage_alerts: float = 0.01,
                  active_learning: bool = False,
                  percentage_active_learning: float = 0.1,
@@ -43,6 +43,7 @@ class TransactionsOverTime:
         self._active_learning: bool = active_learning
         self._percentage_active_learning: float = percentage_active_learning
         self._al_type_name: str = al_type_name
+        self._classifier_name: str = classifier_name
 
     def start_transactions(self) -> None:
         """
@@ -114,7 +115,7 @@ class TransactionsOverTime:
             self._alerts_fraud_females.append(len(fraud_alerts[fraud_alerts['gender_F'] == 1]) / len(alerts))
 
             # Add alerts to historical data
-            if informative_data.get('representativeness'):
+            if informative_data.get('representativeness') is not None:
                 informative_data.drop(columns=['predicted', 'representativeness'], axis=1, inplace=True)
             else:
                 informative_data.drop(columns=['predicted'], axis=1, inplace=True)
@@ -214,12 +215,12 @@ class TransactionsOverTime:
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
-        plt.show()
-
-        plot_name: str = f'{metric1_name}{int(self._percentage_alerts)}'
+        plot_name: str = f'{self._classifier_name}-{metric1_name}{int(self._percentage_alerts * 100)}'
         if self._active_learning:
-            plot_name = f'{plot_name}-{int(self._percentage_active_learning)}-{self._al_type_name}'
+            plot_name = f'{plot_name}-{int(self._percentage_active_learning * 100)}-{self._al_type_name}'
         plt.savefig(f'{plot_name}.png')
+
+        plt.show()
 
     def _plot_metrics(
             self,
@@ -250,12 +251,12 @@ class TransactionsOverTime:
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
-        plt.show()
-
-        plot_name: str = f'{metric1_name}{int(self._percentage_alerts * 100)}'
+        plot_name: str = f'{self._classifier_name}-{metric1_name}{int(self._percentage_alerts * 100)}'
         if self._active_learning:
             plot_name = f'{plot_name}-{int(self._percentage_active_learning * 100)}-{self._al_type_name}'
         plt.savefig(f'{plot_name}.png')
+
+        plt.show()
 
     def _split_test_set(self) -> list[DataFrame]:
         """

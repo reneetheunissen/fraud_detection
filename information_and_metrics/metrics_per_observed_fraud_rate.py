@@ -118,7 +118,6 @@ class MetricsPerObservedFraudRate:
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
-        # Show the plot
-        plt.show()
-
         plt.savefig(f'{group_to_use}.png')
+
+        plt.show()
