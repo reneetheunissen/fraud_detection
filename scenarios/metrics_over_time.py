@@ -1,7 +1,6 @@
 from fraud_detector import TransactionsOverTime
 
-al_type = 'uncertainty'
-
+al_type = 'representative'
 classifier = 'LogisticRegression'
 percentage_active_learning = 0.10
 

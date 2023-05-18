@@ -120,3 +120,5 @@ class MetricsPerObservedFraudRate:
 
         # Show the plot
         plt.show()
+
+        plt.savefig(f'{group_to_use}.png')

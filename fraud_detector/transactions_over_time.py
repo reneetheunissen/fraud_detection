@@ -252,9 +252,9 @@ class TransactionsOverTime:
 
         plt.show()
 
-        plot_name: str = f'{metric1_name}{int(self._percentage_alerts)}'
+        plot_name: str = f'{metric1_name}{int(self._percentage_alerts * 100)}'
         if self._active_learning:
-            plot_name = f'{plot_name}-{int(self._percentage_active_learning)}-{self._al_type_name}'
+            plot_name = f'{plot_name}-{int(self._percentage_active_learning * 100)}-{self._al_type_name}'
         plt.savefig(f'{plot_name}.png')
 
     def _split_test_set(self) -> list[DataFrame]:
