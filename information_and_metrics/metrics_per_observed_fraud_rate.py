@@ -72,7 +72,6 @@ class MetricsPerObservedFraudRate:
             self._metric6_males[observed_fraud_rate] = male_metrics[5]
             self._metric6_females[observed_fraud_rate] = female_metrics[5]
 
-        # PLOT 3 TIMES
         self._plot('FPR', plot_title)
         self._plot('FDR', plot_title)
         self._plot('RPP', plot_title)
@@ -83,7 +82,7 @@ class MetricsPerObservedFraudRate:
         :param group_to_use: which group of metrics to plot
         """
         # Create a dictionary for lines and colors
-        colors: dict[str, str] = {'male': 'tab:cyan', 'female': 'tab:pink'}
+        colors: dict[str, str] = {'male': '#1A98A6', 'female': '#E1AD01'}
         lines: list[str] = ['solid', 'dashed']
 
         if group_to_use == 'FPR':
@@ -119,5 +118,6 @@ class MetricsPerObservedFraudRate:
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
-        # Show the plot
+        plt.savefig(f'{group_to_use}.png')
+
         plt.show()

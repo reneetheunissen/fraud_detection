@@ -17,9 +17,9 @@ class TransactionsOverTime:
                  classifier_name: str,
                  title_scenario: str,
                  al_type_name: str,
-                 sample_size: int = 2500,
+                 sample_size: int = 6500,
                  random_training_set: bool = False,
-                 amount_of_days: int = 3,
+                 amount_of_days: int = 25,
                  percentage_alerts: float = 0.01,
                  active_learning: bool = False,
                  percentage_active_learning: float = 0.1,
@@ -43,6 +43,7 @@ class TransactionsOverTime:
         self._active_learning: bool = active_learning
         self._percentage_active_learning: float = percentage_active_learning
         self._al_type_name: str = al_type_name
+        self._classifier_name: str = classifier_name
 
     def start_transactions(self) -> None:
         """
@@ -54,7 +55,7 @@ class TransactionsOverTime:
 
         for day in range(1, self._amount_of_days + 1):
             self._fraud_detector.test_transactions = test_sets[day - 1]
-            predictions, informative_data, class_votes = self._fraud_detector.detect_fraud()
+            predictions, informative_data = self._fraud_detector.detect_fraud()
 
             # Get metrics
             confusion_matrix_metrics = ConfusionMatrixMetrics(informative_data)
@@ -72,12 +73,7 @@ class TransactionsOverTime:
                     alerts_index = predictions.iloc[:(number_of_alerts - number_of_active_learning)].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
 
-                    if self._al_type_name == 'class votes':
-                        most_uncertain_indices = [index for index, _ in class_votes[:number_of_alerts]]
-                        exploratory_alerts = informative_data[
-                            informative_data.index.isin(most_uncertain_indices) == True
-                            ]
-                    elif self._al_type_name == 'uncertainty':
+                    if self._al_type_name == 'uncertainty':
                         predictions['max_probability'] = np.max(predictions, axis=1)
                         most_uncertain_indices = predictions.sort_values(
                             'max_probability'
@@ -114,7 +110,7 @@ class TransactionsOverTime:
             self._alerts_fraud_females.append(len(fraud_alerts[fraud_alerts['gender_F'] == 1]) / len(alerts))
 
             # Add alerts to historical data
-            if informative_data.get('representativeness'):
+            if informative_data.get('representativeness') is not None:
                 informative_data.drop(columns=['predicted', 'representativeness'], axis=1, inplace=True)
             else:
                 informative_data.drop(columns=['predicted'], axis=1, inplace=True)
@@ -165,27 +161,10 @@ class TransactionsOverTime:
         self._plot_metrics(fdr_males_avg, for_males_avg, fdr_females_avg, for_females_avg, 'FDR', 'FOR')
         self._plot_metrics(ofr_males_avg, tfr_males_avg, ofr_females_avg, tfr_females_avg, 'OFR', 'TFR')
         self._plot_metrics(alerts_males_avg, alerts_fraud_males_avg, alerts_females_avg, alerts_fraud_females_avg,
-                           'Alerts', 'True fraud')
+                           'Alert proportion', 'Fraud proportion')
 
         self._plot_single_metric(rpp_males_avg, rpp_females_avg, 'RPP')
         self._plot_single_metric(acc_males_avg, acc_females_avg, 'ACC')
-
-        # plt.plot(self._get_averages(self._alerts_males, n_iterations), label='Alerts males', color='tab:cyan')
-        # plt.plot(self._get_averages(self._alerts_females, n_iterations), label='Alerts females', color='tab:pink')
-        # plt.plot(self._get_averages(self._alerts_fraud_males, n_iterations),
-        #          label='True fraud males',  color='tab:cyan', linestyle='dashed')
-        # plt.plot(self._get_averages(self._alerts_fraud_females, n_iterations),
-        #          label='True fraud females',  color='tab:pink', linestyle='dashed')
-        #
-        # # Add axis labels and legend outside of the plot
-        # plt.ylim(0, 1)
-        # plt.xlabel('Amount of days')
-        # plt.ylabel('Metric Value')
-        # plt.title(f"{self._title_scenario}, {self._percentage_alerts * 100}% alerts")
-        # plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
-        # plt.tight_layout(rect=[0, 0, 1, 0.95])
-        #
-        # plt.show()
 
     def _get_averages(self, nested_list: list[list[float]], n_iterations: int) -> list[float]:
         """
@@ -211,7 +190,7 @@ class TransactionsOverTime:
         """
         Plots the metrics.
         """
-        colors: dict[str, str] = {'male': 'tab:cyan', 'female': 'tab:pink'}
+        colors: dict[str, str] = {'male': '#1A98A6', 'female': '#E1AD01'}
         linestyles: list[str] = ['solid', 'dashed']
 
         plt.plot(metric1_males, label=f'{metric1_name} males', color=colors['male'], linestyle=linestyles[0])
@@ -227,9 +206,14 @@ class TransactionsOverTime:
         # Add axis labels and legend outside of the plot
         plt.xlabel('Amount of days')
         plt.ylabel('Metric Value')
-        plt.title(f"{self._title_scenario} with {self._percentage_alerts * 100}% alerts")
+        plt.title(f"{self._title_scenario} with {round(self._percentage_alerts * 100, 1)}% alerts")
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+        plot_name: str = f'{self._classifier_name}-{metric1_name}{int(self._percentage_alerts * 100)}'
+        if self._active_learning:
+            plot_name = f'{plot_name}-{int(self._percentage_active_learning * 100)}-{self._al_type_name}'
+        plt.savefig(f'{plot_name}.png')
 
         plt.show()
 
@@ -242,7 +226,7 @@ class TransactionsOverTime:
         """
         Plots the metrics.
         """
-        colors: dict[str, str] = {'male': 'tab:cyan', 'female': 'tab:pink'}
+        colors: dict[str, str] = {'male': '#1A98A6', 'female': '#E1AD01'}
         linestyles: list[str] = ['solid', 'dashed']
 
         plt.plot(metric1_males, label=f'{metric1_name} males', color=colors['male'], linestyle=linestyles[0])
@@ -258,9 +242,14 @@ class TransactionsOverTime:
         # Add axis labels and legend outside of the plot
         plt.xlabel('Amount of days')
         plt.ylabel('Metric Value')
-        plt.title(f"{self._title_scenario} with {self._percentage_alerts * 100}% alerts")
+        plt.title(f"{self._title_scenario} with {round(self._percentage_alerts * 100, 2)}% alerts")
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
+
+        plot_name: str = f'{self._classifier_name}-{metric1_name}{int(self._percentage_alerts * 100)}'
+        if self._active_learning:
+            plot_name = f'{plot_name}-{int(self._percentage_active_learning * 100)}-{self._al_type_name}'
+        plt.savefig(f'{plot_name}.png')
 
         plt.show()
 
