@@ -46,7 +46,7 @@ class FraudDetector:
     def detect_fraud(self) -> tuple[DataFrame, DataFrame]:
         """
         Detects fraud and returns a dataframe of the predictions with information on their actual label
-        and a dataframe on the test data with all information including actual and predicted label
+        and a dataframe on the test data with all information including actual and predicted label.
         """
         # Initialize options for boxplot and violinplot visualizers
         self.boxplot_visualizer = Boxplot(self.historical_data)

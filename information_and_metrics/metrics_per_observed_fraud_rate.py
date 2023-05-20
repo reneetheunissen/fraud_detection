@@ -30,6 +30,7 @@ class MetricsPerObservedFraudRate:
                                        classifier_name: str,
                                        plot_title: str,
                                        sample_size: int = 2500,
+                                       female_proportion: float = 0.1
                                        ):
         # Iterate over observed fraud rates
         for fraud_rate in range(1, 101):
@@ -39,12 +40,12 @@ class MetricsPerObservedFraudRate:
             fraud_detector: FraudDetector = FraudDetector(
                 classifier_name=classifier_name,
                 male_fraud_proportion=observed_fraud_rate,
-                female_fraud_proportion=0.1,
+                female_fraud_proportion=female_proportion,
                 sample_size=sample_size,
                 al_type_name='None',
             )
             # Create predictions
-            _, informative_test_data_random, _ = fraud_detector.detect_fraud()
+            _, informative_test_data_random = fraud_detector.detect_fraud()
             # Initialize confusion matrix
             confusion_matrix_metrics = ConfusionMatrixMetrics(informative_test_data_random)
             # Get confusion matrix metrics
