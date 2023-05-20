@@ -206,7 +206,7 @@ class TransactionsOverTime:
         # Add axis labels and legend outside of the plot
         plt.xlabel('Amount of days')
         plt.ylabel('Metric Value')
-        plt.title(f"{self._title_scenario} with {self._percentage_alerts * 100}% alerts")
+        plt.title(f"{self._title_scenario} with {round(self._percentage_alerts * 100, 1)}% alerts")
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
@@ -242,7 +242,7 @@ class TransactionsOverTime:
         # Add axis labels and legend outside of the plot
         plt.xlabel('Amount of days')
         plt.ylabel('Metric Value')
-        plt.title(f"{self._title_scenario} with {self._percentage_alerts * 100}% alerts")
+        plt.title(f"{self._title_scenario} with {round(self._percentage_alerts * 100, 2)}% alerts")
         plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
