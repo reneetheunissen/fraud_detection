@@ -77,7 +77,7 @@ class FraudDetector:
     def _initialize_classifier(classifier_name: str) -> Union[LogisticRegression, RandomForestClassifier]:
         """
         Initializes a classifier
-        
+
         :param classifier_name: name of the classifier
         :return: Classifier
         """

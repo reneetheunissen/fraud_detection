@@ -1,11 +1,11 @@
-from typing import Union
-
-from fairlearn.metrics import demographic_parity_ratio
 from pandas import DataFrame
 from sklearn.metrics import confusion_matrix
 
 
 class ConfusionMatrixMetrics:
+    """
+    Gets the standard fairness metrics based on the confusion matrix.
+    """
 
     def __init__(self, informative_data_set: DataFrame) -> None:
         """
@@ -13,29 +13,21 @@ class ConfusionMatrixMetrics:
         """
         self._informative_data_set = informative_data_set
 
-    def get_metrics(self, include_demographic_parity: bool = False) -> \
-            Union[tuple[dict, dict], tuple[dict, dict, float]]:
+    def get_metrics(self) -> tuple[dict, dict]:
         """
-        Prints the confusion matrix metrics for males and for females.
+        Gets the confusion matrix metrics for males and for females.
 
         :returns the metrics of males and females are dictionary
         """
         male_metrics = self._get_metrics('gender_M')
         female_metrics = self._get_metrics('gender_F')
 
-        if include_demographic_parity:
-            demographic_parity = round(demographic_parity_ratio(
-                self._informative_data_set.is_fraud.to_numpy(),
-                self._informative_data_set.predicted.to_numpy(),
-                sensitive_features=self._informative_data_set.gender_M.to_numpy(),
-            ), 3)
-            return male_metrics, female_metrics, demographic_parity
-
         return male_metrics, female_metrics
 
     def _get_metrics(self, group_name: str) -> dict[str, float]:
         """
         Prints the metrics for the specified group.
+
         :param group_name: The name of the column that specifies to group to look at
         :return: the metrics per group
         """
@@ -58,7 +50,7 @@ class ConfusionMatrixMetrics:
         # False discovery rate
         FDR = round(FP / (TP + FP), 3)
 
-        # False ommission rate
+        # False omission rate
         FOR = round(FN / (FN + TN), 3)
 
         # Rate of positive predictions
