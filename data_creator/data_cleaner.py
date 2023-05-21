@@ -5,9 +5,10 @@ from pandas import DataFrame
 
 
 class DataCleaner:
+    """Data cleaner class specifically for the simulated fraud detection data set."""
 
-    def columns_to_drop(
-            self,
+    @staticmethod
+    def drop_columns(
             data: DataFrame,
             columns: Union[str, list[str]]
     ) -> DataFrame:
@@ -20,7 +21,8 @@ class DataCleaner:
         """
         return data.drop(columns=columns, axis=1)
 
-    def _dob_to_age(self, data: DataFrame) -> DataFrame:
+    @staticmethod
+    def _dob_to_age(data: DataFrame) -> DataFrame:
         """
         Transforms the date of birth to age and deletes the date of birth column
 
@@ -30,7 +32,8 @@ class DataCleaner:
         data['age'] = 2023 - data['dob']
         return data.drop(columns='dob', axis=1)
 
-    def _clean_categories(self, data: DataFrame) -> DataFrame:
+    @staticmethod
+    def _merge_categories(data: DataFrame) -> DataFrame:
         """
         Cleans the categories in the data by merging similar categories together.
 
@@ -51,12 +54,14 @@ class DataCleaner:
 
         return data
 
-    def _prepare_for_predictor(self, data: DataFrame) -> DataFrame:
+    @staticmethod
+    def _prepare_for_predictor(data: DataFrame) -> DataFrame:
         """
-        Prepares the data for training and testing.
+        Prepares the data for training and testing by dropping unnecessary columns and one-hot encoding categorical
+        variables.
 
         :param data: The data to prepare
-        :return: The prepared data
+        :return: The dataframe ready for predictor
         """
         data.drop(columns=['trans_num', 'city', 'job', 'merchant'], axis=1, inplace=True)
         categorical_data: list[str] = ['category', 'gender', 'state']
@@ -66,13 +71,14 @@ class DataCleaner:
 
     def clean_data(self, data: DataFrame) -> DataFrame:
         """
-        Cleans the data in a general way.
+        Cleans the data by dropping columns, transforming the date of birth to age, merging categories, and preparing
+        the data for use in a machine learning model.
 
         :param data: The data set to be cleaned
         :return: A cleaned data set
         """
         # Drop the unnecessary columns
-        cleaned_data = self.columns_to_drop(
+        cleaned_data = self.drop_columns(
             data,
             columns=['trans_date_trans_time', 'first', 'last', 'street', 'lat', 'long']
         )
@@ -81,7 +87,7 @@ class DataCleaner:
         cleaned_data = self._dob_to_age(cleaned_data)
 
         # Clean up the categories
-        cleaned_data = self._clean_categories(cleaned_data)
+        cleaned_data = self._merge_categories(cleaned_data)
 
         # Prepare for training and testing
         cleaned_data = self._prepare_for_predictor(cleaned_data)

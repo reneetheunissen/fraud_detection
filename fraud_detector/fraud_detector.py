@@ -8,7 +8,7 @@ from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from data_creator import TrainTestCreator
-from visualizations import Boxplot, Violinplot
+from data_visualizers import Boxplot, Violinplot
 
 
 class FraudDetector:
