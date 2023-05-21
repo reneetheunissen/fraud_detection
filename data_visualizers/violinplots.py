@@ -21,6 +21,7 @@ class Violinplot:
     ) -> None:
         """
         Visualizes violin plots for total, male, and female
+
         :param column_name: name of the column to visualize
         :param title: Title of the plot
         :param y_label: y label of the plot

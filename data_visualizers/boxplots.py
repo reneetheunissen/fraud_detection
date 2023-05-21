@@ -18,7 +18,8 @@ class Boxplot:
             show_outliers: bool = False
     ) -> None:
         """
-        Visualizes boxplots for total, male, and female
+        Visualizes boxplots for total, male, and female.
+
         :param column_name: name of the column to visualize
         :param title: Title of the plot
         :param y_label: y label of the plot
@@ -48,6 +49,14 @@ class Boxplot:
                       y_label: str,
                       show_outliers: bool = False
                       ) -> None:
+        """
+        Creates the plot itself.
+
+        :param boxplot_data: The data for the boxplot
+        :param title: The title of the boxplot
+        :param y_label: The label of the y axis
+        :param show_outliers: If outliers are to be shown, default is False
+        """
         fig, ax = plt.subplots(figsize=(12, 7))
 
         ax.spines['top'].set_visible(False)
