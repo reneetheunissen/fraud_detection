@@ -8,10 +8,12 @@ from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from data_creator import TrainTestCreator
-from data_visualizers import Boxplot, Violinplot
 
 
 class FraudDetector:
+    """
+    Detects fraudulent transactions. Suitable for logistic regression and random forest classifiers.
+    """
 
     def __init__(
             self,
@@ -19,9 +21,9 @@ class FraudDetector:
             female_fraud_proportion: float,
             sample_size: int,
             classifier_name: str,
-            al_type_name: str,
             random_training_set: bool = False,
             active_learning: bool = False,
+            al_type_name: str = '',
     ) -> None:
         self.train_test_creator: TrainTestCreator = TrainTestCreator()
         if not random_training_set:
@@ -45,6 +47,8 @@ class FraudDetector:
         """
         Detects fraud and returns a dataframe of the predictions with information on their actual label
         and a dataframe on the test data with all information including actual and predicted label.
+
+        :returns the predictions and the informative data set with all information, including predictions
         """
         # Initialize the classifier and predict
         self.predictor = Predictor(
@@ -110,6 +114,9 @@ class FraudDetector:
 
 
 class Predictor:
+    """
+    Splits the historical data into X and y and runs the classifier on the data.
+    """
 
     def __init__(self,
                  historical_data: DataFrame,
