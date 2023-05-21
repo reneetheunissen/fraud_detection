@@ -73,37 +73,11 @@ class FraudDetector:
 
         return predictions, informative_test_data
 
-    def get_proportion(
-            self,
-            column_name: Optional[str] = None,
-            value: Union[int, str, None] = None,
-            fraud_column_name: str = 'is_fraud',
-            data: Optional[DataFrame] = None
-    ) -> float:
-        """
-        Determines the proportion between fraud and non-fraud of the transactions of the specified group.
-
-        If no column_name is specified, the total proportion will be returned.
-
-        :param column_name: the column name to group on
-        :param value: the value to search for in the column
-        :param fraud_column_name: the column name of the fraudulent and non-fraudulent transactions
-        :param data: the dataframe to get the proportions from
-        :return: Float containing the actual proportion of fraud rounded on 3 decimals
-        """
-        if data is None:
-            data = self.historical_data
-        # If no column_name is specified, the total proportion will be returned.
-        if column_name is None:
-            subset = data
-        else:
-            subset = data[data[column_name] == value]
-        return round(len(subset[subset[fraud_column_name] == 1]) / len(subset), 4)
-
     @staticmethod
     def _initialize_classifier(classifier_name: str) -> Union[LogisticRegression, RandomForestClassifier]:
         """
         Initializes a classifier
+        
         :param classifier_name: name of the classifier
         :return: Classifier
         """
