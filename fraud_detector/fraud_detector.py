@@ -32,7 +32,7 @@ class FraudDetector:
             )
         else:
             self.historical_data: DataFrame = self.train_test_creator.create_random_train_data(sample_size)
-        self.test_transactions: DataFrame = self.train_test_creator.create_test_set()
+        self.test_transactions: DataFrame = self.train_test_creator.create_small_test_set()
         self._fraudulent_transactions: DataFrame = self.historical_data[self.historical_data['is_fraud'] == 1]
         self._non_fraudulent_transactions: DataFrame = self.historical_data[self.historical_data['is_fraud'] == 0]
         self.boxplot_visualizer: Boxplot
