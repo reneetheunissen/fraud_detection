@@ -35,8 +35,6 @@ class FraudDetector:
         self.test_transactions: DataFrame = self.train_test_creator.create_small_test_set()
         self._fraudulent_transactions: DataFrame = self.historical_data[self.historical_data['is_fraud'] == 1]
         self._non_fraudulent_transactions: DataFrame = self.historical_data[self.historical_data['is_fraud'] == 0]
-        self.boxplot_visualizer: Boxplot
-        self.violinplot_visualizer: Violinplot
         self.predictor: Predictor
         self._classifier: Union[LogisticRegression, RandomForestClassifier] = \
             self._initialize_classifier(classifier_name)
@@ -48,14 +46,6 @@ class FraudDetector:
         Detects fraud and returns a dataframe of the predictions with information on their actual label
         and a dataframe on the test data with all information including actual and predicted label.
         """
-        # Initialize options for boxplot and violinplot visualizers
-        self.boxplot_visualizer = Boxplot(self.historical_data)
-        self.violinplot_visualizer = Violinplot(self.historical_data)
-
-        # print(f"Total proportion: {self.get_proportion()}")
-        # print(f"Male proportion: {self.get_proportion(column_name='gender_M', value=1)}")
-        # print(f"Female proportion: {self.get_proportion(column_name='gender_F', value=1)}")
-
         # Initialize the classifier and predict
         self.predictor = Predictor(
             historical_data=self.historical_data,
