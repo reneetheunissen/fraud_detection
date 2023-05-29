@@ -7,6 +7,11 @@ This code can be used to simulate selection bias and observe the effects over ti
 The `fraud detector` can be used for single predictions, while the `transactions over time` can be used to see the 
 transactions over time.
 
+In scenarios there are three files that show how the code can be used.
+- `metrics_over_time.py` shows how to plot the metrics over time and provided the probability to use active learning
+- `RQ2_metrics_per_observed_fraud_rate.py` shows how to plot the metrics for all possible observed fraud rates for males
+- `RQ2_random_sampling.py` prints the metrics by using random sampling instead of all possible OFR.
+
 ## Code Structure
 - Data Creator
   - Data Cleaner
