@@ -7,9 +7,11 @@ from information_and_metrics import ConfusionMatrixMetrics
 
 
 class MetricsPerObservedFraudRate:
+    """Obtains the metrics per observed fraud rate to plot them."""
 
     def __init__(self) -> None:
         self._labels: list[str] = ['FPR', 'FNR', 'FDR', 'FOR', 'RPP', 'ACC']
+
         # Create empty dictionaries to store metrics per observed fraud rate
         self._metric1_males, self._metric2_males, self._metric3_males = {}, {}, {}
         self._metric4_males, self._metric5_males, self._metric6_males = {}, {}, {}
@@ -17,9 +19,16 @@ class MetricsPerObservedFraudRate:
         self._metric4_females, self._metric5_females, self._metric6_females = {}, {}, {}
 
     @staticmethod
-    def _get_metrics(male_metrics: dict[str, float],
-                     female_metrics: dict[str, float]
-                     ) -> Optional[tuple[list[float], list[float]]]:
+    def _metrics_to_list(male_metrics: dict[str, float],
+                         female_metrics: dict[str, float]
+                         ) -> Optional[tuple[list[float], list[float]]]:
+        """
+        Transforms the metrics to a list.
+
+        :param male_metrics: the male metrics
+        :param female_metrics: the female metrics
+        :return: The metrics as list for males and females
+        """
         male_metrics = [male_metrics['FPR'], male_metrics['FNR'], male_metrics['FDR'],
                         male_metrics['FOR'], male_metrics['RPP'], male_metrics['ACC']]
         female_metrics = [female_metrics['FPR'], female_metrics['FNR'], female_metrics['FDR'],
@@ -31,7 +40,15 @@ class MetricsPerObservedFraudRate:
                                        plot_title: str,
                                        sample_size: int = 2500,
                                        female_proportion: float = 0.1
-                                       ):
+                                       ) -> None:
+        """
+        Plots the metrics for all possible observed fraud rates.
+
+        :param classifier_name: The name of the classifier to use
+        :param plot_title: The title of the plot
+        :param sample_size: The sample size to use, default 2,500
+        :param female_proportion: The proportion of female observed fraud to use, default 0.10 (true fraud rate)
+        """
         # Iterate over observed fraud rates
         for fraud_rate in range(1, 101):
             observed_fraud_rate = fraud_rate / 100
@@ -52,7 +69,7 @@ class MetricsPerObservedFraudRate:
             male_metrics, female_metrics = confusion_matrix_metrics.get_metrics()
 
             # Extract metrics
-            male_metrics, female_metrics = self._get_metrics(male_metrics, female_metrics)
+            male_metrics, female_metrics = self._metrics_to_list(male_metrics, female_metrics)
 
             # Store metrics in dictionary
             self._metric1_males[observed_fraud_rate] = male_metrics[0]
@@ -80,7 +97,9 @@ class MetricsPerObservedFraudRate:
     def _plot(self, group_to_use: str, plot_title: str) -> None:
         """
         Plots the graph with the relevant metrics.
+
         :param group_to_use: which group of metrics to plot
+        :param plot_title: The title of the plot
         """
         # Create a dictionary for lines and colors
         colors: dict[str, str] = {'male': '#1A98A6', 'female': '#E1AD01'}
@@ -120,5 +139,4 @@ class MetricsPerObservedFraudRate:
         plt.tight_layout(rect=[0, 0, 1, 0.95])
 
         plt.savefig(f'{group_to_use}.png')
-
         plt.show()

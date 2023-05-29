@@ -10,6 +10,7 @@ from information_and_metrics import ConfusionMatrixMetrics
 
 
 class TransactionsOverTime:
+    """Plots the metrics for the transactions over time."""
 
     def __init__(self,
                  male_fraud_proportion: float,
@@ -24,19 +25,24 @@ class TransactionsOverTime:
                  active_learning: bool = False,
                  percentage_active_learning: float = 0.1,
                  ) -> None:
+        # Initialize fraud detector and historica data sets
         self._fraud_detector: FraudDetector = FraudDetector(
-            male_fraud_proportion, female_fraud_proportion, sample_size, classifier_name, al_type_name,
-            random_training_set, active_learning
+            male_fraud_proportion, female_fraud_proportion, sample_size, classifier_name, random_training_set,
+            active_learning, al_type_name,
         )
-        self._amount_of_days: int = amount_of_days
         self._historical_data_all_labeled: DataFrame = self._fraud_detector.historical_data
         self._historical_data_original: DataFrame = self._historical_data_all_labeled.copy()
+
+        # Create lists for all metrics per gender
         self._fpr_males, self._fnr_males, self._fdr_males = [], [], []
         self._for_males, self._rpp_males, self._acc_males = [], [], []
         self._fpr_females, self._fnr_females, self._fdr_females = [], [], []
         self._for_females, self._rpp_females, self._acc_females = [], [], []
         self._alerts_males, self._alerts_females, self._alerts_fraud_males, self._alerts_fraud_females = [], [], [], []
         self._ofr_males, self._ofr_females, self._tfr_males, self._tfr_females = [], [], [], []
+
+        # Other relevant input
+        self._amount_of_days: int = amount_of_days
         self._random: bool = random_training_set
         self._title_scenario: str = title_scenario
         self._percentage_alerts: float = percentage_alerts
@@ -69,6 +75,7 @@ class TransactionsOverTime:
             else:
                 # Sort based on certainty of fraud
                 predictions = predictions.sort_values(by='fraud', ascending=False)
+                # If active learning is true, get those alerts first based on active learning type
                 if self._active_learning is True:
                     alerts_index = predictions.iloc[:(number_of_alerts - number_of_active_learning)].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
@@ -92,6 +99,7 @@ class TransactionsOverTime:
                         exploratory_alerts = informative_data.sort_values(
                             by='representativeness', ascending=ascending
                         ).iloc[:number_of_active_learning]
+                    # If we want to apply random sampling exploratory alerts
                     else:
                         exploratory_alerts = informative_data[
                             ~informative_data.index.isin(alerts_index)
@@ -100,6 +108,7 @@ class TransactionsOverTime:
                     alerts = pd.concat([alerts, exploratory_alerts])
                     alerts_index = alerts.index
 
+                # No active learning, take all alerts based on predicted probability of fraud
                 else:
                     alerts_index = predictions.iloc[:number_of_alerts].index
                     alerts = informative_data[informative_data.index.isin(alerts_index) == True]
@@ -125,14 +134,17 @@ class TransactionsOverTime:
     def plot(self, n_iterations: int = 5) -> None:
         """
         Plots all metric plots.
+
         :param n_iterations: The number of iterations to use
         """
         for iteration in range(1, n_iterations + 1):
             self.start_transactions()
             print(f"Iteration number {iteration} ended.")
+
             # Reset the historical data for the next iteration
             self._fraud_detector.historical_data = self._historical_data_original.copy()
 
+        # Get the average per day out of the list
         fpr_males_avg, fnr_males_avg = self._get_averages(self._fpr_males, n_iterations), \
                                        self._get_averages(self._fnr_males, n_iterations)
         fpr_females_avg, fnr_females_avg = self._get_averages(self._fpr_females, n_iterations), \
@@ -158,6 +170,7 @@ class TransactionsOverTime:
         alerts_fraud_males_avg = self._get_averages(self._alerts_fraud_males, n_iterations)
         alerts_fraud_females_avg = self._get_averages(self._alerts_fraud_females, n_iterations)
 
+        # Plot per metric
         self._plot_metrics(fpr_males_avg, fnr_males_avg, fpr_females_avg, fnr_females_avg, 'FPR', 'FNR')
         self._plot_metrics(fdr_males_avg, for_males_avg, fdr_females_avg, for_females_avg, 'FDR', 'FOR')
         self._plot_metrics(ofr_males_avg, tfr_males_avg, ofr_females_avg, tfr_females_avg, 'OFR', 'TFR')
@@ -170,6 +183,7 @@ class TransactionsOverTime:
     def _get_averages(self, nested_list: list[list[float]], n_iterations: int) -> list[float]:
         """
         Gets the average over all simulations per day.
+
         :param nested_list: The nested list of all values per iterations
         :param n_iterations: The number of iterations
         :returns: List of averages
@@ -190,6 +204,10 @@ class TransactionsOverTime:
     ) -> None:
         """
         Plots the metrics.
+
+        :param metric1_males: The list of averages for males of metric 1
+        :param metric1_females: The list of averages for females of metric 1
+        :param metric1_name: The name of the metric
         """
         colors: dict[str, str] = {'male': '#1A98A6', 'female': '#E1AD01'}
         linestyles: list[str] = ['solid', 'dashed']
@@ -226,6 +244,13 @@ class TransactionsOverTime:
     ) -> None:
         """
         Plots the metrics.
+
+        :param metric1_males: The list of averages for males of metric 1
+        :param metric2_males: The list of averages for males of metric 2
+        :param metric1_females: The list of averages for females of metric 1
+        :param metric2_females: The list of averages for females of metric 2
+        :param metric1_name: The name of metric 1
+        :param metric2_name: The name of metric 2
         """
         colors: dict[str, str] = {'male': '#1A98A6', 'female': '#E1AD01'}
         linestyles: list[str] = ['solid', 'dashed']
@@ -257,6 +282,7 @@ class TransactionsOverTime:
     def _split_test_set(self) -> list[DataFrame]:
         """
         Splits the entirety of the test set into smaller test set. One test set is provided for each day.
+
         :return: A list of test sets, one for each day
         """
         test_set = self._create_test_set()
@@ -313,6 +339,7 @@ class TransactionsOverTime:
     def _append_metrics(self, male_metrics, female_metrics, informative_data: DataFrame) -> None:
         """
         Appends the given metrics to the list of metrices.
+
         :param male_metrics: The metrics for males
         :param female_metrics: The metrics for females.
         :param informative_data: The data of the transactions of the current day

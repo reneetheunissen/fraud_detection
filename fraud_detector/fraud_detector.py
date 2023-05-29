@@ -8,10 +8,12 @@ from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.preprocessing import StandardScaler
 
 from data_creator import TrainTestCreator
-from visualizations import Boxplot, Violinplot
 
 
 class FraudDetector:
+    """
+    Detects fraudulent transactions. Suitable for logistic regression and random forest classifiers.
+    """
 
     def __init__(
             self,
@@ -19,9 +21,9 @@ class FraudDetector:
             female_fraud_proportion: float,
             sample_size: int,
             classifier_name: str,
-            al_type_name: str,
             random_training_set: bool = False,
             active_learning: bool = False,
+            al_type_name: str = '',
     ) -> None:
         self.train_test_creator: TrainTestCreator = TrainTestCreator()
         if not random_training_set:
@@ -32,11 +34,9 @@ class FraudDetector:
             )
         else:
             self.historical_data: DataFrame = self.train_test_creator.create_random_train_data(sample_size)
-        self.test_transactions: DataFrame = self.train_test_creator.create_test_set()
+        self.test_transactions: DataFrame = self.train_test_creator.create_small_test_set()
         self._fraudulent_transactions: DataFrame = self.historical_data[self.historical_data['is_fraud'] == 1]
         self._non_fraudulent_transactions: DataFrame = self.historical_data[self.historical_data['is_fraud'] == 0]
-        self.boxplot_visualizer: Boxplot
-        self.violinplot_visualizer: Violinplot
         self.predictor: Predictor
         self._classifier: Union[LogisticRegression, RandomForestClassifier] = \
             self._initialize_classifier(classifier_name)
@@ -47,15 +47,9 @@ class FraudDetector:
         """
         Detects fraud and returns a dataframe of the predictions with information on their actual label
         and a dataframe on the test data with all information including actual and predicted label.
+
+        :returns the predictions and the informative data set with all information, including predictions
         """
-        # Initialize options for boxplot and violinplot visualizers
-        self.boxplot_visualizer = Boxplot(self.historical_data)
-        self.violinplot_visualizer = Violinplot(self.historical_data)
-
-        # print(f"Total proportion: {self.get_proportion()}")
-        # print(f"Male proportion: {self.get_proportion(column_name='gender_M', value=1)}")
-        # print(f"Female proportion: {self.get_proportion(column_name='gender_F', value=1)}")
-
         # Initialize the classifier and predict
         self.predictor = Predictor(
             historical_data=self.historical_data,
@@ -79,37 +73,11 @@ class FraudDetector:
 
         return predictions, informative_test_data
 
-    def get_proportion(
-            self,
-            column_name: Optional[str] = None,
-            value: Union[int, str, None] = None,
-            fraud_column_name: str = 'is_fraud',
-            data: Optional[DataFrame] = None
-    ) -> float:
-        """
-        Determines the proportion between fraud and non-fraud of the transactions of the specified group.
-
-        If no column_name is specified, the total proportion will be returned.
-
-        :param column_name: the column name to group on
-        :param value: the value to search for in the column
-        :param fraud_column_name: the column name of the fraudulent and non-fraudulent transactions
-        :param data: the dataframe to get the proportions from
-        :return: Float containing the actual proportion of fraud rounded on 3 decimals
-        """
-        if data is None:
-            data = self.historical_data
-        # If no column_name is specified, the total proportion will be returned.
-        if column_name is None:
-            subset = data
-        else:
-            subset = data[data[column_name] == value]
-        return round(len(subset[subset[fraud_column_name] == 1]) / len(subset), 4)
-
     @staticmethod
     def _initialize_classifier(classifier_name: str) -> Union[LogisticRegression, RandomForestClassifier]:
         """
         Initializes a classifier
+
         :param classifier_name: name of the classifier
         :return: Classifier
         """
@@ -120,6 +88,9 @@ class FraudDetector:
 
 
 class Predictor:
+    """
+    Splits the historical data into X and y and runs the classifier on the data.
+    """
 
     def __init__(self,
                  historical_data: DataFrame,
