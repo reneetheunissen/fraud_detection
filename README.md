@@ -4,6 +4,9 @@ This code has been created by Renée Theunissen for her Master Thesis at Jheroni
 ## Use
 This code can be used to simulate selection bias and observe the effects over time. 
 
+Download the data from https://www.kaggle.com/datasets/kartik2112/fraud-detection and save the `fraudTrain.csv` and 
+`fraudTest.csv` in the fraud_detection folder. Hence, on the same level as this ReadMe. Now the code can be run.
+
 The `fraud detector` can be used for single predictions, while the `transactions over time` can be used to see the 
 transactions over time.
 
